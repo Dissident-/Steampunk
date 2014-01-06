@@ -1,0 +1,1 @@
+<p>Thank you for registering! You may now proceed to log in with your new account.</p>

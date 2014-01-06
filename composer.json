@@ -1,0 +1,23 @@
+{
+	"name": "phpixie/project",
+	"type": "project",
+	"description" : "PHPixie skeleton project",
+	"license" : "BSD",
+	"autoload": {
+		"psr-0": {"": "classes/"}
+	},
+	"require": {
+		"phpixie/core": "2.*@dev",
+		"phpixie/db": "2.*@dev",
+		"phpixie/orm": "2.*@dev",
+		"phpixie/email": "2.*@dev",
+		"phpixie/image": "2.*@dev",
+		"phpixie/validate": "2.*@dev",
+		"phpixie/auth": "2.*@dev"
+    	},
+	"extra": {
+		"branch-alias": {
+			"dev-master": "2.*-dev"
+		}
+	}
+}
