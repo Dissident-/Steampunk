@@ -22,3 +22,10 @@ Technology has progressed to an approximate medieval era, with bits of industria
 Guns are fairly ineffective and mostly laughed at. People mostly fight with swords, bows, steam-swords (steamsabers? don't sue me!). Mechanical contraptions are quite impressive, but also liable to spontaneously combust.
 
 They say the legendary hatblade can only be obtained by duelling its current owner. Will you defeat the master gentleman, doffer of hats most lethal and grandiose?
+
+Attribution
+=======
+(yes this will be added to a credits page on the site)
+
+Monochrome Icons by the fine folks at http://game-icons.net/
+Colour Icons by Ails http://ails.deviantart.com/art/420-Pixel-Art-Icons-for-RPG-129892453
