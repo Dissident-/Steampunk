@@ -11,6 +11,6 @@ class CLI {
 	
 	public function tick()
 	{
-		$this->pixie->db->query('update')->table('character')->data(array('ActionPoints' => $this->pixie->db->expr('ActionPoints + 1'))->where('ActionPoints', '<', 100)->execute();
+		$this->pixie->db->query('update')->table('character')->data(array('ActionPoints' => $this->pixie->db->expr('ActionPoints + 1')))->where('ActionPoints', '<', 100)->execute();
 	}
 }
