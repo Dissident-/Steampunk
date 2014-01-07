@@ -1,8 +1,11 @@
 <div><div class="ui-corner-left ui-widget-content padding-10" style="float:left"><?php echo $character->CharName; ?></div><div style="float:left" class="ui-state-error padding-10"><?php echo $character->HitPoints ?>HP</div><div style="float:left" class="ui-state-highlight padding-10"><?php echo $character->ActionPoints ?>AP</div><div style="float:left" class="ui-corner-right ui-widget-content padding-10"><?php echo $character->Experience ?>XP</div>
 <?php
 	// Yellow and red messages that slide in right of character details
-	if($action != '') echo '<div id="game_minor_actions" style="float:left;margin-left:10px" class="padding-10 ui-state-highlight ui-corner-all">'.$action.'</div><script type="text/javascript">$(\'#game_minor_actions\').hide().show(\'slide\');</script>';
-	if($warnings != '') echo '<div id="game_warnings" style="float:left;margin-left:10px" class="padding-10 ui-state-error ui-corner-all">'.$warnings.'</div><script type="text/javascript">$(\'#game_warnings\').hide().show(\'slide\');</script>';
+	echo '<div id="game_minor_actions" style="float:left;margin-left:10px" class="padding-10 ui-state-highlight ui-corner-all'.( $action == '' ? ' ui-helper-hidden' : '' ).'">';
+	if($action != '') echo $action.'<script type="text/javascript">$(\'#game_minor_actions\').hide().show(\'slide\')</script>';
+	echo '</div><div id="game_warnings" style="float:left;margin-left:10px" class="padding-10 ui-state-error ui-corner-all'.( $warnings == '' ? ' ui-helper-hidden' : '' ).'">';
+	if($warnings != '') echo $warnings.'<script type="text/javascript">$(\'#game_warnings\').hide().show(\'slide\');</script>';
+	echo '</div>';
 	
 ?><div class="clear-left"></div>
 </div>
@@ -156,7 +159,7 @@
 						if(!$firstinv) echo '</ul></div>'; else $firstinv = false;
 						echo '<h3>'.$item->Type->Category->CategoryName.'</h3><div style="padding-top:0px;padding-bottom:0px"><ul>';
 					}
-					echo '<li>'.$item->Type->ItemTypeName.' <a href="/game/'.$character->CharacterID.'/drop/'.$item->ItemInstanceID.'" rel="#page_content nohash"><img src="/img/turd20.png" alt="Drop" title="Drop" /></a></li>';
+					echo '<li class="item-'.$item->ItemInstanceID.'">'.$item->Type->ItemTypeName.' <a href="/game/'.$character->CharacterID.'/drop/'.$item->ItemInstanceID.'" rel="#dynamicjs nohash"><img src="/img/turd20.png" alt="Drop" title="Drop" /></a></li>';
 				}
 			}
 		

@@ -45,3 +45,5 @@
 			<p class="text-centered" style="margin-top:50px"><span class="ui-state-highlight ui-corner-all"><img src="/img/loading.gif" alt="Spinner"/> Please Wait, Loading...</span></p>
 		</div>
 	</div>
+	<div id="dynamicjs">
+	</div>

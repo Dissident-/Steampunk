@@ -4,6 +4,8 @@ class Game extends \App\Page{
 
 	private $character;
 	private $surroundings;
+	
+	private $dynamicjs = false;
 
 	public function before() {
 		if(!$this->pixie->auth->user()) // Can't play if not logged in
@@ -22,15 +24,24 @@ class Game extends \App\Page{
 			return false;
 		}
 	
-		if($this->request->get('ajax')) // AJAX requests won't require the entire page (in future may need to check which div we're feeding into)
+		if($this->request->get('ajax')) // AJAX requests won't require the entire page
 		{
-			$this->view = $this->pixie->view('blank');
+			if($this->request->get('target') == '#dynamicjs') // We are returning some javascript to execute
+			{
+				$this->view = $this->pixie->view('dynamicjs');
+				$this->view->subview = '';
+				$this->dynamicjs = true;
+			}
+			else
+			{
+				$this->view = $this->pixie->view('blank');
+			}
 		}
 		else
 		{
 			$this->view = $this->pixie->view('index');
 		}
-		$this->view->subview = 'game/main';
+		if(!$this->dynamicjs) $this->view->subview = 'game/main';
 		$this->view->right = 'map';
 		$this->view->errors = '';
 		$this->view->action = '';
@@ -40,6 +51,7 @@ class Game extends \App\Page{
 		$this->view->inventory = $this->pixie->orm->get('ItemInstance')->with('Type.Category')->where('CharacterID', $this->character->CharacterID)->find_all()->as_array();
 		$this->view->map = $this->pixie->orm->get('Location')->with('Type')->where('CoordinateX', '>', $char->Location->CoordinateX - 3)->where('CoordinateX', '<', $char->Location->CoordinateX + 3)->where('CoordinateY', '>', $char->Location->CoordinateY - 3)->where('CoordinateX', '<', $char->Location->CoordinateY + 3)->where('PlaneID', '=', $char->Location->PlaneID)->where('CoordinateZ', $char->Location->CoordinateZ)->order_by('CoordinateY','asc')->order_by('CoordinateX','asc')->find_all()->as_array();
 		$this->view->post = $this->request->post();
+		$this->view->get = $this->request->get();
 		
 		$this->view->activitylog = $this->view->character->ActivityLog->order_by('Timestamp','DESC')->limit(25)->find_all()->as_array();
 	}
@@ -136,11 +148,19 @@ class Game extends \App\Page{
 		$item = $this->pixie->orm->get('ItemInstance')->with('Type')->where('ItemInstanceID', $this->request->param('arg1'))->find();
 		
 		if($item->loaded() && $item->CharacterID == $char->CharacterID) // Ensure item exists and belongs to correct player
-		{
+		{	
+			if($this->dynamicjs)
+			{
+				$this->view->subview = 'game/dynamicjs/dropitem';
+				$this->view->ItemInstanceID = $item->ItemInstanceID;
+			}
+			else
+			{
+				// Avoidable query by removing from array instead, probably faster later on
+				$this->view->inventory = $this->pixie->orm->get('ItemInstance')->with('Type.Category')->where('CharacterID', $this->character->CharacterID)->find_all()->as_array();
+			}
 			$this->view->action = 'You drop your '.$item->Type->ItemTypeName;
 			$item->delete();
-			// Avoidable query by removing from array instead, probably faster later on
-			$this->view->inventory = $this->pixie->orm->get('ItemInstance')->with('Type.Category')->where('CharacterID', $this->character->CharacterID)->find_all()->as_array();
 		}
 		else
 		{
