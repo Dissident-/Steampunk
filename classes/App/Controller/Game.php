@@ -149,18 +149,19 @@ class Game extends \App\Page{
 		
 		if($item->loaded() && $item->CharacterID == $char->CharacterID) // Ensure item exists and belongs to correct player
 		{	
+			$this->view->action = 'You drop your '.$item->Type->ItemTypeName;
+			$this->view->ItemInstanceID = $item->ItemInstanceID;
+			$item->delete();
 			if($this->dynamicjs)
 			{
 				$this->view->subview = 'game/dynamicjs/dropitem';
-				$this->view->ItemInstanceID = $item->ItemInstanceID;
 			}
 			else
 			{
 				// Avoidable query by removing from array instead, probably faster later on
 				$this->view->inventory = $this->pixie->orm->get('ItemInstance')->with('Type.Category')->where('CharacterID', $this->character->CharacterID)->find_all()->as_array();
 			}
-			$this->view->action = 'You drop your '.$item->Type->ItemTypeName;
-			$item->delete();
+
 		}
 		else
 		{
