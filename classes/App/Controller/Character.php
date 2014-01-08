@@ -46,7 +46,7 @@ class Character extends \App\Page{
 		if($this->request->method == 'POST')
 		{
 		
-			$validate = $this->pixie->validate->get($this->request->post());
+			$validate = $this->pixie->validate->get(array('CharName' => $this->request->post('CharName')));
 			$pixie = $this->pixie;
 			$validate->field('CharName', true)->rule('callback', function($value) use ($pixie){
 				return $pixie->orm->get('Character')->where('CharName', $value)->count_all() === 0 ? false : true;
@@ -55,11 +55,10 @@ class Character extends \App\Page{
 			
 			if($validate->valid())
 			{
-				$post = $this->request->post();
 			
 				
 				$char = $this->pixie->orm->get('Character');
-				$char->CharName = $post['CharName'];
+				$char->CharName = $this->request->post('CharName');
 				$char->LocationID = 1;
 				$char->AccountID = $this->pixie->auth->user()->AccountID;
 				$char->save();

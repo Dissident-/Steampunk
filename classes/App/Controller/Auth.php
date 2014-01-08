@@ -28,7 +28,7 @@ class Auth extends \App\Page{
 		if($this->request->method == 'POST')
 		{
 		
-			$validate = $this->pixie->validate->get($this->request->post());
+			$validate = $this->pixie->validate->get(array('Username' => $this->request->post('Username'), 'Password' => $this->request->post('Password'), 'EmailAddress' => $this->request->post('EmailAddress')));
 			$validate->field('Username')->rules('filled', 'alpha_numeric')->error('Username must be alphanumeric');
 			$pixie = $this->pixie;
 			$validate->field('Username', true)->rule('callback', function($value) use ($pixie){
@@ -41,12 +41,12 @@ class Auth extends \App\Page{
 			{
 				$post = $this->request->post();
 			
-				$hashed = $this->pixie->auth->provider('password')->hash_password($post['Password']);
+				$hashed = $this->pixie->auth->provider('password')->hash_password($this->request->post('Password'));
 				
 				$account = $this->pixie->orm->get('Account');
-				$account->Username = $post['Username'];
+				$account->Username = $this->request->post('Username');
 				$account->Password = $hashed;
-				$account->EmailAddress = $post['EmailAddress'];
+				$account->EmailAddress = $this->request->post('EmailAddress');
 				$account->save();
 				$this->view->subview = 'account/registered';
 			}
