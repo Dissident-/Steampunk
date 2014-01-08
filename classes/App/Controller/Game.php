@@ -271,6 +271,7 @@ class Game extends \App\Page{
 	{
 		$char = $this->view->character;
 		$target = $this->pixie->orm->get('Character')->where('CharacterID', $this->request->post('CharacterID'))->find();
+		$this->view->selectedchar = $this->request->post('CharacterID');
 		if(!$target->loaded() || $char->LocationID != $target->LocationID)
 		{
 			$this->view->warnings = 'That character isn\'t here!';
@@ -281,6 +282,7 @@ class Game extends \App\Page{
 			$this->view->warnings = 'You can\'t attack with that!';
 			return;	
 		}
+		$this->view->selectedweapon = $this->request->post('ItemInstanceID');
 		if(!$char->SpendAP(1))
 		{
 			$this->view->warnings = 'You are too tired to attack.';
