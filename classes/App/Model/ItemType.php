@@ -22,6 +22,12 @@ class ItemType extends \PHPixie\ORM\Model{
 			'through'=>'search_odds',
             'key'=>'ItemTypeID',
 			'foreign_key'=>'TileTypeID'
+        ),
+		'ItemUsage'=>array(
+            'model'=>'ItemUsage',
+			'through'=>'item_type_usage',
+            'key'=>'ItemTypeID',
+			'foreign_key'=>'ItemUsageID'
         )
     );
 	
@@ -37,5 +43,14 @@ class ItemType extends \PHPixie\ORM\Model{
             'key'=>'ItemCategoryID'
         )
     );
+	
+	public function get($property)
+	{
+		if($property == 'Article')
+		{
+			if(preg_match('/^[aeiou]\z/i', $this->ItemTypeName)) return 'an';
+			return 'a';
+		}
+	}
 	
 }

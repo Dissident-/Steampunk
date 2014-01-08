@@ -46,4 +46,112 @@ class Character extends \PHPixie\ORM\Model{
         )
     );
 	
+	public function SpendAP($amount = 1)
+	{
+		if($this->ActionPoints > 0)
+		{
+			$this->ActionPoints = $this->ActionPoints - $amount;
+			$this->save();
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+	
+	public function Kill()
+	{
+		$action = $this->pixie->orm->get('ActivityLog');
+		$action->CharacterID = $this->CharacterID;
+		if($this->HitPoints > 0)
+		{
+			$this->HitPoints = 0;
+			$action->Activity = '<span class="log-died">You have been exterminated!</span>'; // Different message for this?
+		}
+		else
+		{
+			$action->Activity = '<span class="log-died">You have died :(</span>';
+		}
+		$this->LocationID = null;
+		$this->save();
+		$action->save();
+		$this->add('ActivityLog', $action);
+	}
+	
+	public function Respawn()
+	{
+		$this->LocationID = 1;
+		$this->HitPoints = 50;
+		$this->save();
+		$action = $this->pixie->orm->get('ActivityLog');
+		$action->CharacterID = $this->CharacterID;
+		$action->Activity = '<span class="log-respawn">You have respawned.</span>';
+		$action->save();
+		$this->add('ActivityLog', $action);
+	}
+	
+	public function get($property)
+	{
+		if($property == 'Link')
+		{
+			return '<a href="/character/'.$this->CharacterID.'">'.$this->CharName.'</a>';
+		}
+		else if($property == 'Weaponry')
+		{
+			$weaponrydata = $this->pixie->db->query('select')->table('item_instance')->fields('item_instance.*', 'item_type.*', 'item_usage_attribute.AttributeName', 'item_usage_attribute.AttributeValue')->join('item_type', array('item_instance.ItemTypeID', 'item_type.ItemTypeID'))->join('item_type_usage', array('item_type.ItemTypeID', 'item_type_usage.ItemTypeID'))->join('item_usage', array('item_type_usage.ItemUsageID', 'item_usage.ItemUsageID'))->join('item_usage_attribute',array(array('item_instance.ItemInstanceID','item_usage_attribute.ItemInstanceID'), array('or', array('item_type.ItemTypeID', 'item_usage_attribute.ItemTypeID'))),'left')->where('item_instance.CharacterID', $this->CharacterID)->where('item_usage.ItemUsageName', 'weapon')->execute()->as_array();
+			$weaponry = array();
+			
+			$weapontypes = array();
+			$weaponinstances = array();
+			foreach($weaponrydata as $weaponattribute)
+			{
+				if(!isset($weaponry[$weaponattribute->ItemInstanceID]))
+				{
+					$weaponattribute->Article = 'their';
+					$weaponry[$weaponattribute->ItemInstanceID] = $weaponattribute;
+					if($weaponattribute->AttributeName != null)
+					{
+						$weaponry[$weaponattribute->ItemInstanceID]->Attributes = array($weaponattribute);
+						$a = $weaponattribute->AttributeName;
+						$weaponry[$weaponattribute->ItemInstanceID]->$a =  $weaponattribute->AttributeValue;
+					}
+					else
+					{
+						$weaponry[$weaponattribute->ItemInstanceID]->Attributes = array();
+					}
+				}
+				else
+				{
+					$weaponry[$weaponattribute->ItemInstanceID]->Attributes[] = $weaponattribute;
+					$a = $weaponattribute->AttributeName;
+					if(isset($weaponry[$weaponattribute->ItemInstanceID]->$a))
+					{
+						if(is_numeric($weaponry[$weaponattribute->ItemInstanceID]->$a) && is_numeric($weaponattribute->AttributeValue))
+						{
+					
+							$weaponry[$weaponattribute->ItemInstanceID]->$a = $weaponry[$weaponattribute->ItemInstanceID]->$a + $weaponattribute->AttributeValue;
+						}
+						else
+						{
+							// shit, how do we handle non-numeric duplicate attributes?
+							// lets go for the last one, so that things can override one another
+							$weaponry[$weaponattribute->ItemInstanceID]->$a =  $weaponattribute->AttributeValue;
+						}
+					}
+					else
+					{
+						$weaponry[$weaponattribute->ItemInstanceID]->$a =  $weaponattribute->AttributeValue;
+					}
+				}
+			}
+			$working_weaponry = array();
+			foreach($weaponry as $k => $v)
+			{
+				if(isset($v->Damage) && isset($v->DamageType) && isset($v->HitChance))
+					$working_weaponry[$k] = $v;
+			}
+			return $working_weaponry;
+		}
+	}
 }

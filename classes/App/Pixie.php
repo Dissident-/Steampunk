@@ -1,6 +1,7 @@
 <?php
-
 namespace App;
+
+require_once 'constants.php';
 
 /**
  * Pixie dependency container

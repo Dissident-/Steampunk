@@ -2,9 +2,8 @@
 namespace App\Controller;
 class Game extends \App\Page{
 
-	private $character;
 	private $surroundings;
-	
+	private $character;
 	private $dynamicjs = false;
 
 	public function before() {
@@ -12,16 +11,52 @@ class Game extends \App\Page{
 		{
 			$this->execute = false;
 			$this->response->body = 'Permission Denied';
-			return false;
+			return;
 		}
 		
-		$this->character = $this->pixie->orm->get('Character')->with('Location.Plane')->where('AccountID', $this->pixie->auth->user()->AccountID)->where('CharacterID', $this->request->param('CharacterID'))->find();
-	
-		if(!$this->character->loaded() || $this->pixie->auth->user()->AccountID != $this->character->AccountID) // Can't play other people's characters
+		$character = $this->pixie->orm->get('Character')->with('Location.Plane')->where('AccountID', $this->pixie->auth->user()->AccountID)->where('CharacterID', $this->request->param('CharacterID'))->find();
+		if(!$character->loaded() || $this->pixie->auth->user()->AccountID != $character->AccountID) // Can't play other people's characters
 		{
 			$this->execute = false;
 			$this->response->body = 'Permission Denied';
-			return false;
+			return;
+		}
+		if($character->HitPoints <= 0) // Dead!
+		{
+		
+			if($this->request->route->name != 'respawn' && $this->request->route->name != 'gameindex')
+			{
+				if($this->request->get('ajax'))
+				{
+					$this->response->body = '<script type="text/javascript">location.reload(true);</script>';
+				}
+				else
+				{
+					$this->response->body = $this->redirect('/game/'.$this->request->param('CharacterID'));
+				}
+				$this->execute = false;
+				return;
+			}
+		
+		
+			if($this->request->get('ajax')) // AJAX requests won't require the entire page
+			{
+				if($this->request->get('target') == '#dynamicjs') // We are returning some javascript to execute
+				{
+					$this->view = $this->pixie->view('dynamicjs');
+					$this->dynamicjs = true;
+				}
+				else
+				{
+					$this->view = $this->pixie->view('blank');
+				}
+			}
+			else
+			{
+				$this->view = $this->pixie->view('index');
+			}
+			
+
 		}
 	
 		if($this->request->get('ajax')) // AJAX requests won't require the entire page
@@ -41,15 +76,14 @@ class Game extends \App\Page{
 		{
 			$this->view = $this->pixie->view('index');
 		}
-		if(!$this->dynamicjs) $this->view->subview = 'game/main';
+		if(!$this->dynamicjs)	$this->view->subview = 'game/main';
 		$this->view->right = 'map';
 		$this->view->errors = '';
 		$this->view->action = '';
 		$this->view->warnings = '';
-		$this->view->character = $this->character;
-		$char = $this->character;
-		$this->view->inventory = $this->pixie->orm->get('ItemInstance')->with('Type.Category')->where('CharacterID', $this->character->CharacterID)->find_all()->as_array();
-		$this->view->map = $this->pixie->orm->get('Location')->with('Type')->where('CoordinateX', '>', $char->Location->CoordinateX - 3)->where('CoordinateX', '<', $char->Location->CoordinateX + 3)->where('CoordinateY', '>', $char->Location->CoordinateY - 3)->where('CoordinateX', '<', $char->Location->CoordinateY + 3)->where('PlaneID', '=', $char->Location->PlaneID)->where('CoordinateZ', $char->Location->CoordinateZ)->order_by('CoordinateY','asc')->order_by('CoordinateX','asc')->find_all()->as_array();
+		$this->view->character = $character;
+		$this->view->inventory = $this->pixie->orm->get('ItemInstance')->with('Type.Category')->where('CharacterID', $this->view->character->CharacterID)->find_all()->as_array();
+		if($this->view->character->HitPoints > 0) $this->view->map = $this->pixie->orm->get('Location')->with('Type')->where('CoordinateX', '>', $character->Location->CoordinateX - 3)->where('CoordinateX', '<', $character->Location->CoordinateX + 3)->where('CoordinateY', '>', $character->Location->CoordinateY - 3)->where('CoordinateX', '<', $character->Location->CoordinateY + 3)->where('PlaneID', '=', $character->Location->PlaneID)->where('CoordinateZ', $character->Location->CoordinateZ)->order_by('CoordinateY','asc')->order_by('CoordinateX','asc')->find_all()->as_array();
 		$this->view->post = $this->request->post();
 		$this->view->get = $this->request->get();
 		
@@ -58,13 +92,13 @@ class Game extends \App\Page{
 
 	public function action_index()
 	{
-		// Don't need to do anything here because the before handles it all :D
+		if($this->view->character->HitPoints <= 0) $this->view->subview = 'game/dead';
 	}
 	
 	
 	public function action_move()
 	{
-		$char = $this->character;
+		$char = $this->view->character;
 		// Fetch dest tile
 		$loc = $this->pixie->orm->get('Location')->with('Plane')->where('LocationID', $this->request->param('arg1'))->find();
 		
@@ -87,18 +121,16 @@ class Game extends \App\Page{
 				return;
 			}
 		
-			if($char->ActionPoints <= 0) // Need those sweet sweet APs
+			if(!$char->SpendAP(1)) // Need those sweet sweet APs
 			{
 				$this->view->warnings = 'You are too tired to move.';
 				return;
 			}
-			$char->ActionPoints = $char->ActionPoints - 1;
-			$char->Save();
 			$this->pixie->db->query('update')->table('character')->data(array('LocationID' => $loc->LocationID))->where('CharacterID',$char->CharacterID)->execute();
 			// Would be nice if it wasn't necessary to do another DB query
-			$this->character = $this->pixie->orm->get('Character')->with('Location.Plane')->where('CharacterID', $char->CharacterID)->find();
+			$this->view->character = $this->pixie->orm->get('Character')->with('Location.Plane')->where('CharacterID', $char->CharacterID)->find();
 			$this->surroundings = $this->pixie->orm->get('Location')->with('Type')->where('CoordinateX', '>', $char->Location->CoordinateX - 3)->where('CoordinateX', '<', $char->Location->CoordinateX + 3)->where('CoordinateY', '>', $char->Location->CoordinateY - 3)->where('CoordinateX', '<', $char->Location->CoordinateY + 3)->where('PlaneID', '=', $char->Location->PlaneID)->where('CoordinateZ', $char->Location->CoordinateZ)->order_by('CoordinateY','asc')->order_by('CoordinateX','asc')->find_all()->as_array();
-			$this->view->character = $this->character;
+			$this->view->character = $char;
 			$this->view->map = $this->surroundings;
 		}
 		else // Someone wants to break shit or is lagging like hell and button mashing
@@ -113,19 +145,19 @@ class Game extends \App\Page{
 		if(trim($this->request->post('speech')) != '') // PHPixie automatically filters out dangerous HTML PHP and JS, so just check if there is content
 		{
 			$activity = $this->pixie->orm->get('ActivityLog');
-			$activity->CharacterID = $this->character->CharacterID;
+			$activity->CharacterID = $this->view->character->CharacterID;
 			if(strpos($this->request->post('speech'), '/me ') === 0) // Handle emotes
 			{
-				$activity->Activity = '<a href="/character/'.$activity->CharacterID.'">'.$this->character->CharName.'</a> '.substr($this->request->post('speech'), 4);
+				$activity->Activity = $this->view->character->Link.' '.substr($this->request->post('speech'), 4);
 			}
 			else
 			{
-				$activity->Activity = '<a href="/character/'.$activity->CharacterID.'">'.$this->character->CharName.'</a> said \''.$this->request->post('speech').'\'';
+				$activity->Activity = $this->view->character->Link.' said \''.$this->request->post('speech').'\'';
 			}
 			$activity->save();
 			
 			// Find everyone on the tile who witness this drivel
-			$characters = $this->character->Location->Character->find_all()->as_array();
+			$characters = $this->view->character->Location->Character->find_all()->as_array();
 			
 			$data = array();
 			
@@ -143,7 +175,7 @@ class Game extends \App\Page{
 	public function action_drop()
 	{
 		$this->view->right = 'inventory';
-		$char = $this->character;
+		$char = $this->view->character;
 		
 		$item = $this->pixie->orm->get('ItemInstance')->with('Type')->where('ItemInstanceID', $this->request->param('arg1'))->find();
 		
@@ -159,7 +191,7 @@ class Game extends \App\Page{
 			else
 			{
 				// Avoidable query by removing from array instead, probably faster later on
-				$this->view->inventory = $this->pixie->orm->get('ItemInstance')->with('Type.Category')->where('CharacterID', $this->character->CharacterID)->find_all()->as_array();
+				$this->view->inventory = $this->pixie->orm->get('ItemInstance')->with('Type.Category')->where('CharacterID', $this->view->character->CharacterID)->find_all()->as_array();
 			}
 
 		}
@@ -172,17 +204,14 @@ class Game extends \App\Page{
 	public function action_search()
 	{
 		$this->view->right = 'inventory';
-		$char = $this->character;
+		$char = $this->view->character;
 		
 		
-		if($char->ActionPoints <= 0)
+		if(!$char->SpendAP(1))
 		{
 			$this->view->warnings = 'You are too tired to move.';
 			return;
 		}
-		$char->ActionPoints = $char->ActionPoints - 1;
-		$char->Save();
-		$this->character = $char;
 		
 		$searchodds = $this->pixie->db->query('select')->table('search_odds')->where('TileTypeID',$char->Location->TileTypeID)->execute()->as_array();
 		
@@ -232,9 +261,72 @@ class Game extends \App\Page{
 			$myitem->ItemTypeID = $found;
 			$myitem->Save();
 			
-			$this->view->inventory = $this->pixie->orm->get('ItemInstance')->with('Type.Category')->where('CharacterID', $this->character->CharacterID)->find_all()->as_array();
+			$this->view->inventory = $this->pixie->orm->get('ItemInstance')->with('Type.Category')->where('CharacterID', $this->view->character->CharacterID)->find_all()->as_array();
 			// No more "a(n)"!
-			$this->view->action = 'You search and find '.(preg_match('/^[aeiou]|s\z/i', $item->ItemTypeName) ? 'an' : 'a').' '.$item->ItemTypeName.'!';
+			$this->view->action = 'You search and find '.$item->Article.' '.$item->ItemTypeName.'!';
 		}
+	}
+	
+	public function action_attack()
+	{
+		$char = $this->view->character;
+		$target = $this->pixie->orm->get('Character')->where('CharacterID', $this->request->post('CharacterID'))->find();
+		if(!$target->loaded() || $char->LocationID != $target->LocationID)
+		{
+			$this->view->warnings = 'That character isn\'t here!';
+			return;
+		}
+		if(!isset($char->Weaponry[$this->request->post('ItemInstanceID')]))
+		{
+			$this->view->warnings = 'You can\'t attack with that!';
+			return;	
+		}
+		if(!$char->SpendAP(1))
+		{
+			$this->view->warnings = 'You are too tired to attack.';
+			return;
+		}
+		
+		$weapon = $char->Weaponry[$this->request->post('ItemInstanceID')];
+		$result = mt_rand(0, 99);
+		
+		if($result >= $weapon->HitChance) // missed
+		{
+			$this->view->action = 'You attack '.$target->Link.' with your '.$weapon->ItemTypeName.' and miss';
+			
+			$action = $this->pixie->orm->get('ActivityLog');
+			$action->CharacterID = $char->CharacterID;
+			$action->Activity = '<span class="log-attack-miss">'.$char->Link.' attacked you with '.$weapon->Article.' '.$weapon->ItemTypeName.' and missed.</span>';
+			$action->save();
+			$target->add('ActivityLog', $action);
+			return;
+		}
+		
+		$this->view->action = 'You attack '.$target->Link.' with your '.$weapon->ItemTypeName.', dealing '.$weapon->Damage.' '.$weapon->DamageType.' damage and gaining '.$weapon->Damage. 'XP!';
+
+		$char->Experience = $char->Experience + $weapon->Damage;
+		$char->save();
+		$target->HitPoints = $target->HitPoints - $weapon->Damage;
+		$target->save();
+		if($target->HitPoints <= 0)
+		{
+			$target->Kill();
+		}
+		
+		$action = $this->pixie->orm->get('ActivityLog');
+		$action->CharacterID = $char->CharacterID;
+		$action->Activity = '<span class="log-attack-hit">'.$char->Link.' attacked you with '.$weapon->Article.' '.$weapon->ItemTypeName.' and hit, dealing '.$weapon->Damage.' '.$weapon->DamageType.' damage.</span>';
+		$action->save();
+		$target->add('ActivityLog', $action);
+		return;
+		// TODO: Soaks
+	}
+	
+	public function action_respawn()
+	{
+		$this->view->character->Respawn();
+		$this->view->character = $this->pixie->orm->get('Character')->with('Location.Plane')->where('AccountID', $this->pixie->auth->user()->AccountID)->where('CharacterID', $this->request->param('CharacterID'))->find();
+		$this->view->map = $this->pixie->orm->get('Location')->with('Type')->where('CoordinateX', '>', $this->view->character->Location->CoordinateX - 3)->where('CoordinateX', '<', $this->view->character->Location->CoordinateX + 3)->where('CoordinateY', '>', $this->view->character->Location->CoordinateY - 3)->where('CoordinateX', '<', $this->view->character->Location->CoordinateY + 3)->where('PlaneID', '=', $this->view->character->Location->PlaneID)->where('CoordinateZ', $this->view->character->Location->CoordinateZ)->order_by('CoordinateY','asc')->order_by('CoordinateX','asc')->find_all()->as_array();
+		$this->view->action = 'You have respawned.';
 	}
 }
