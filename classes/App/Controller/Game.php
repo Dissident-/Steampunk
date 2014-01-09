@@ -330,9 +330,10 @@ class Game extends \App\Page{
             $action->Activity = '<span class="log-player-kill">'.$char->Link.' attacked '.$target->Link.' with '.$weapon->Article.', killing them!</span>';
 			$characters = $this->view->character->Location->Character->find_all()->as_array();
 			$data = array();
-			foreach($characters as $char)
+			foreach($characters as $loopchar)
 			{
-				$data[] = array('CharacterID' => $char->CharacterID, 'ActivityLogID' => $activity->ActivityLogID);
+				if ($loopchar->CharacterID != $char->CharacterID && $loopchar->CharacterID != $target->CharacterID)
+                    $$data[] = array('CharacterID' => $loopchar->CharacterID, 'ActivityLogID' => $activity->ActivityLogID);
 			}
 			$this->pixie->db->query('insert')->table('activity_log_reader')->data($data)->execute(); // Wind contributed batch inserts to Pixie, because Wind is pretty great
 		}
