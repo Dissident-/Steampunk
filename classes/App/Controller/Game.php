@@ -333,7 +333,7 @@ class Game extends \App\Page{
 			foreach($characters as $loopchar)
 			{
 				if ($loopchar->CharacterID != $char->CharacterID && $loopchar->CharacterID != $target->CharacterID)
-                    $$data[] = array('CharacterID' => $loopchar->CharacterID, 'ActivityLogID' => $activity->ActivityLogID);
+                    $$data[] = array('CharacterID' => $loopchar->CharacterID, 'ActivityLogID' => $action->ActivityLogID);
 			}
 			$this->pixie->db->query('insert')->table('activity_log_reader')->data($data)->execute(); // Wind contributed batch inserts to Pixie, because Wind is pretty great
 		}
