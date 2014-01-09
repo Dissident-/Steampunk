@@ -295,7 +295,14 @@ class Game extends \App\Page{
 		if($result >= $weapon->HitChance) // missed
 		{
 			$this->view->action = 'You attack '.$target->Link.' with your '.$weapon->ItemTypeName.' and miss';
-			
+            
+            //Attacker log
+			$action = $this->pixie->orm->get('ActivityLog');
+			$action->CharacterID = $char->CharacterID;
+			$action->Activity = '<span class="log-attack-miss">' + $this->view->action + '</span>';
+			$action->save();
+			$char->add('ActivityLog', $action);
+			//Target log
 			$action = $this->pixie->orm->get('ActivityLog');
 			$action->CharacterID = $char->CharacterID;
 			$action->Activity = '<span class="log-attack-miss">'.$char->Link.' attacked you with '.$weapon->Article.' '.$weapon->ItemTypeName.' and missed.</span>';
@@ -313,8 +320,16 @@ class Game extends \App\Page{
 		if($target->HitPoints <= 0)
 		{
 			$target->Kill();
+			$this->view->action += ' This was enough to kill them! You gain no extra experience. There are no levels!';
 		}
 		
+        //Attacker log
+		$action = $this->pixie->orm->get('ActivityLog');
+		$action->CharacterID = $char->CharacterID;
+		$action->Activity = '<span class="log-attack-hit">' + $this->view->action + '</span>';
+		$action->save();
+		$char->add('ActivityLog', $action);
+        //Target log
 		$action = $this->pixie->orm->get('ActivityLog');
 		$action->CharacterID = $char->CharacterID;
 		$action->Activity = '<span class="log-attack-hit">'.$char->Link.' attacked you with '.$weapon->Article.' '.$weapon->ItemTypeName.' and hit, dealing '.$weapon->Damage.' '.$weapon->DamageType.' damage.</span>';
