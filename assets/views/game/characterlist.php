@@ -12,6 +12,10 @@ $('#CharacterListContainer').jtable({
 			pageSize: 10,
 			sorting: false,
 			defaultSorting: 'CharName ASC',
+			actions:
+			{
+				deleteAction: '/character/delete'
+			},
             fields: {
                 CharacterID: {
                     key: true,

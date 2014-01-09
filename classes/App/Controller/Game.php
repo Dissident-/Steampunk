@@ -87,6 +87,7 @@ class Game extends \App\Page{
 		$this->view->post = $this->request->post();
 		$this->view->get = $this->request->get();
 		
+		// TODO: Select more records if there's been a lot of activity since last user login
 		$this->view->activitylog = $this->view->character->ActivityLog->order_by('Timestamp','DESC')->limit(25)->find_all()->as_array();
 	}
 
@@ -299,13 +300,13 @@ class Game extends \App\Page{
             //Attacker log
 			$action = $this->pixie->orm->get('ActivityLog');
 			$action->CharacterID = $char->CharacterID;
-			$action->Activity = '<span class="log-attack-miss">' + $this->view->action + '</span>';
+			$action->Activity = '<span class="log-attack-miss">'.$this->view->action.'</span>';
 			$action->save();
 			$char->add('ActivityLog', $action);
 			//Target log
 			$action = $this->pixie->orm->get('ActivityLog');
 			$action->CharacterID = $char->CharacterID;
-			$action->Activity = '<span class="log-attack-miss">'.$char->Link.' attacked you with '.$weapon->Article.' '.$weapon->ItemTypeName.' and missed.</span>';
+			$action->Activity = '<span class="log-defend-miss">'.$char->Link.' attacked you with '.$weapon->Article.' '.$weapon->ItemTypeName.' and missed.</span>';
 			$action->save();
 			$target->add('ActivityLog', $action);
 			return;
@@ -320,22 +321,25 @@ class Game extends \App\Page{
 		if($target->HitPoints <= 0)
 		{
 			$target->Kill();
-			$this->view->action += ' This was enough to kill them! You gain no extra experience. There are no levels!';
+			$this->view->action .= ' This was enough to kill them!';
 		}
 		
         //Attacker log
 		$action = $this->pixie->orm->get('ActivityLog');
 		$action->CharacterID = $char->CharacterID;
-		$action->Activity = '<span class="log-attack-hit">' + $this->view->action + '</span>';
+		$action->Activity = '<span class="log-attack-hit">'.$this->view->action.'</span>';
 		$action->save();
 		$char->add('ActivityLog', $action);
         //Target log
 		$action = $this->pixie->orm->get('ActivityLog');
 		$action->CharacterID = $char->CharacterID;
-		$action->Activity = '<span class="log-attack-hit">'.$char->Link.' attacked you with '.$weapon->Article.' '.$weapon->ItemTypeName.' and hit, dealing '.$weapon->Damage.' '.$weapon->DamageType.' damage.</span>';
+		$action->Activity = '<span class="log-defend-hit">'.$char->Link.' attacked you with '.$weapon->Article.' '.$weapon->ItemTypeName.' and hit, dealing '.$weapon->Damage.' '.$weapon->DamageType.' damage.</span>';
 		$action->save();
 		$target->add('ActivityLog', $action);
-		return;
+		
+		// Need to do this query again in order to pick up on new stuff. TODO: Figure out why adding this into the after() function breaks shit
+		$this->view->activitylog = $this->view->character->ActivityLog->order_by('Timestamp','DESC')->limit(25)->find_all()->as_array();
+		
 		// TODO: Soaks
 	}
 	
@@ -345,5 +349,8 @@ class Game extends \App\Page{
 		$this->view->character = $this->pixie->orm->get('Character')->with('Location.Plane')->where('AccountID', $this->pixie->auth->user()->AccountID)->where('CharacterID', $this->request->param('CharacterID'))->find();
 		$this->view->map = $this->pixie->orm->get('Location')->with('Type')->where('CoordinateX', '>', $this->view->character->Location->CoordinateX - 3)->where('CoordinateX', '<', $this->view->character->Location->CoordinateX + 3)->where('CoordinateY', '>', $this->view->character->Location->CoordinateY - 3)->where('CoordinateX', '<', $this->view->character->Location->CoordinateY + 3)->where('PlaneID', '=', $this->view->character->Location->PlaneID)->where('CoordinateZ', $this->view->character->Location->CoordinateZ)->order_by('CoordinateY','asc')->order_by('CoordinateX','asc')->find_all()->as_array();
 		$this->view->action = 'You have respawned.';
+		
+		// Need to do this query again in order to pick up on new stuff. TODO: Figure out why adding this into the after() function breaks shit
+		$this->view->activitylog = $this->view->character->ActivityLog->order_by('Timestamp','DESC')->limit(25)->find_all()->as_array();
 	}
 }

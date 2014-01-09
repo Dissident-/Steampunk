@@ -26,7 +26,14 @@
 			</ul>
 			
 		</div>
-	
+		<div class="padding-10">
+			<?php
+			$_form('/game/'.$character->CharacterID.'/speak', 'speechform');
+			echo '<input type="text" name="speech" value="" style="margin-right:1%;display:inline;width:80%;" />' ;
+			$_submit('Speak');
+			$_form();
+			?>
+		</div>
 	
 		<p><b><?php echo $character->Location->LocationName.', '.$character->Location->Type->TypeName.' ('.$character->Location->CoordinateX.', '.$character->Location->CoordinateY.', '.$character->Location->Plane->PlaneName.')'; ?></b></p>
 		<p><?php echo $character->Location->Description !== null ? $character->Location->Description : $character->Location->Type->DefaultDescription ?></p>
@@ -43,18 +50,11 @@
 		?>
 		</ul>
 		<?php } ?>
-		<div class="padding-10">
-		<?php $_link('/game/'.$character->CharacterID.'/search', 'Search', 'button', '#page_content nohash' );
-
-		$_form('/game/'.$character->CharacterID.'/speak', 'speechform');	?>
-		<input type="text" name="speech" value="" style="display:inline;width:80%;" />
-		
-		<?php
-		$_submit('Speak');
-		$_form();
+		<?php $_link('/game/'.$character->CharacterID.'/search', 'Search', 'button margin-10', '#page_content nohash' );
 		
 		if(count($others) > 0 && count($character->Weaponry) > 0)
 		{
+			echo '<div class="padding-10">';
 			$_form('/game/'.$character->CharacterID.'/attack', 'attackform');
 			
 			$_submit('Attack');
@@ -70,6 +70,7 @@
 			}
 			echo '</select>';
 			$_form();
+			echo '</div>';
 		} ?>
 		</div>
 	</div>
