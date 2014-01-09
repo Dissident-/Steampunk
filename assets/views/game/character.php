@@ -4,7 +4,7 @@
 
 	<?php if($isowner) echo '<p class="ui-state-highlight ui-corner-all padding-10">This is your character.</p>' ?>
 
-	<?php if($isowner) echo '<p class="ui-state-error ui-corner-all padding-10">'.$character->CharName.' is currently dead :(</p>' ?>
+	<?php if($isowner && $character->HitPoints <= 0) echo '<p class="ui-state-error ui-corner-all padding-10">'.$character->CharName.' is currently dead :(</p>' ?>
 	
 </div>
 </div>
