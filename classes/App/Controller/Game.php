@@ -327,13 +327,14 @@ class Game extends \App\Page{
             //Everyone in area log
             $action = $this->pixie->orm->get('ActivityLog');
             $action->CharacterID = $char->CharacterID;
-            $action->Activity = '<span class="log-player-kill">'.$char->Link.' attacked '.$target->Link.' with '.$weapon->Article.', killing them!</span>';
+            $action->Activity = '<span class="log-player-kill">'.$char->Link.' attacked '.$target->Link.' with '.$weapon->Article.' '.$weapon->ItemTypeName.', killing them!</span>';
+			$action->save();
 			$characters = $this->view->character->Location->Character->find_all()->as_array();
 			$data = array();
 			foreach($characters as $loopchar)
 			{
 				if ($loopchar->CharacterID != $char->CharacterID && $loopchar->CharacterID != $target->CharacterID)
-                    $$data[] = array('CharacterID' => $loopchar->CharacterID, 'ActivityLogID' => $action->ActivityLogID);
+                    $data[] = array('CharacterID' => $loopchar->CharacterID, 'ActivityLogID' => $action->ActivityLogID);
 			}
 			$this->pixie->db->query('insert')->table('activity_log_reader')->data($data)->execute(); // Wind contributed batch inserts to Pixie, because Wind is pretty great
 		}
