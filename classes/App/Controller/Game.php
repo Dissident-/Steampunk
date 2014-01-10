@@ -312,16 +312,30 @@ class Game extends \App\Page{
 			return;
 		}
 		
+		// TODO: Soaks
 		$this->view->action = 'You attack '.$target->Link.' with your '.$weapon->ItemTypeName.', dealing '.$weapon->Damage.' '.$weapon->DamageType.' damage and gaining '.$weapon->Damage. 'XP!';
 
 		$char->Experience = $char->Experience + $weapon->Damage;
 		$char->save();
 		$target->HitPoints = $target->HitPoints - $weapon->Damage;
 		$target->save();
+        
 		if($target->HitPoints <= 0)
 		{
 			$target->Kill();
 			$this->view->action .= ' This was enough to kill them!';
+            //Everyone in area log
+            $action = $this->pixie->orm->get('ActivityLog');
+            $action->CharacterID = $char->CharacterID;
+            $action->Activity = '<span class="log-player-kill">'.$char->Link.' attacked '.$target->Link.' with '.$weapon->Article.', killing them!</span>';
+			$characters = $this->view->character->Location->Character->find_all()->as_array();
+			$data = array();
+			foreach($characters as $loopchar)
+			{
+				if ($loopchar->CharacterID != $char->CharacterID && $loopchar->CharacterID != $target->CharacterID)
+                    $$data[] = array('CharacterID' => $loopchar->CharacterID, 'ActivityLogID' => $action->ActivityLogID);
+			}
+			$this->pixie->db->query('insert')->table('activity_log_reader')->data($data)->execute(); // Wind contributed batch inserts to Pixie, because Wind is pretty great
 		}
 		
         //Attacker log
@@ -339,8 +353,6 @@ class Game extends \App\Page{
 		
 		// Need to do this query again in order to pick up on new stuff. TODO: Figure out why adding this into the after() function breaks shit
 		$this->view->activitylog = $this->view->character->ActivityLog->order_by('Timestamp','DESC')->limit(25)->find_all()->as_array();
-		
-		// TODO: Soaks
 	}
 	
 	public function action_respawn()
