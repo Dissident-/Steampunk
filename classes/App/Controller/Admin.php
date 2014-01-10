@@ -225,6 +225,123 @@ class Admin extends \App\Page{
 		}
 	}
 	
+	public function action_itemusage()
+	{
+		$action = $this->request->get('action');
+		$post = array_merge($this->request->get(), $this->request->post());
+		
+		switch($action)
+		{
+			case 'list':
+			{
+				$this->view = $this->pixie->view('json');
+				$usages = $this->pixie->db->query('select')->table('item_type_usage')->join('item_usage', array('item_type_usage.ItemUsageID', 'item_usage.ItemUsageID'))->where('ItemTypeID',$post['ItemTypeID'])->execute()->as_array();
+				$this->view->json = array('Result' => 'OK', 'TotalRecordCount' => count($usages), 'Records' => $usages);
+				break;
+			}
+			case 'usages':
+			{
+				$array = array();
+				$usages = $this->pixie->orm->get('ItemUsage')->find_all()->as_array(true);
+				foreach($usages as $use)
+				{
+					$array[] = array('Value' => $use->ItemUsageID, 'DisplayText' => $use->ItemUsageName);
+				}
+				$this->view = $this->pixie->view('json');
+				$this->view->json = array('Result' => 'OK', 'Options' => $array);
+				break;
+			}
+			case 'create':
+			{
+				$usageitem = array();
+				$usageitem['ItemUsageID'] = $post['ItemUsageID'];
+				$usageitem['ItemTypeID'] = $post['ItemTypeID'];
+				
+				$usage = $this->pixie->orm->get('ItemUsage')->where('ItemUsageID', $post['ItemUsageID'])->find();
+				
+				if($usage->ItemUsageName == 'weapon') $this->pixie->db->query('insert')->table('item_usage_attribute')->data(array(array('ItemUsageID' => $usage->ItemUsageID, 'ItemTypeID' => $usageitem['ItemTypeID'], 'AttributeName' => 'Damage', 'AttributeValue' => 0), array('ItemUsageID' => $usage->ItemUsageID, 'ItemTypeID' => $usageitem['ItemTypeID'], 'AttributeName' => 'DamageType', 'AttributeValue' => 'INVALID'), array('ItemUsageID' => $usage->ItemUsageID, 'ItemTypeID' => $usageitem['ItemTypeID'], 'AttributeName' => 'HitChance', 'AttributeValue' => 0)))->execute();
+				
+				$this->pixie->db->query('insert')->table('item_type_usage')->data($usageitem)->execute();
+				
+				$this->view = $this->pixie->view('json');
+				$this->view->json = array('Result' => 'OK', 'Record' => $usageitem);
+				
+				break;
+			}
+			case 'delete':
+			{
+				$this->view = $this->pixie->view('json');
+				$usageitem['ItemUsageID'] = $post['ItemUsageID'];
+				$usageitem['ItemTypeID'] = $post['ItemTypeID'];
+				$this->pixie->db->query('delete')->table('item_type_usage')->where('ItemTypeID', $usageitem['ItemTypeID'])->where('ItemUsageID', $usageitem['ItemUsageID'])->execute();
+				$this->view->json = array('Result' => 'OK');
+				break;
+			}
+			default:
+			{
+				$this->view->subview = 'admin/itemtype';
+			}
+		}
+	}
+	
+	
+	
+	public function action_itemusageattribute()
+	{
+		$action = $this->request->get('action');
+		$post = array_merge($this->request->get(), $this->request->post());
+		
+		switch($action)
+		{
+			case 'list':
+			{
+				$this->view = $this->pixie->view('json');
+				$usages = $this->pixie->db->query('select')->table('item_usage_attribute')->where('ItemTypeID',$post['ItemTypeID'])->where('ItemUsageID',$post['ItemUsageID'])->execute()->as_array();
+				$this->view->json = array('Result' => 'OK', 'TotalRecordCount' => count($usages), 'Records' => $usages);
+				break;
+			}
+			case 'attributes':
+			{
+				$array = array();
+				$usage = $this->pixie->orm->get('ItemUsage')->where('ItemUsageID', $post['ItemUsageID'])->find();
+				
+				if($usage->ItemUsageName == 'weapon')
+				{
+					$usages = array('Damage', 'DamageType', 'HitChance');
+				}
+				
+				foreach($usages as $use)
+				{
+					$array[] = array('Value' => $use, 'DisplayText' => $use);
+				}
+				$this->view = $this->pixie->view('json');
+				$this->view->json = array('Result' => 'OK', 'Options' => $array);
+				break;
+			}
+			case 'update':
+			{
+				$this->view = $this->pixie->view('json');
+
+				
+				$attribute = array();
+				$attribute['ItemUsageAttribute'] = $post['ItemUsageAttribute'];
+				$attribute['ItemUsageID'] = $post['ItemUsageID'];
+				$attribute['ItemTypeID'] = $post['ItemTypeID'];
+				$attribute['AttributeName'] = $post['AttributeName'];
+				$attribute['AttributeValue'] = $post['AttributeValue'];
+				$this->pixie->db->query('update')->table('item_usage_attribute')->data($attribute)->where('ItemUsageAttribute', $attribute['ItemUsageAttribute'])->execute();
+				
+				$this->view->json = array('Result' => 'OK', 'Record' => $attribute);
+
+				break;
+			}
+			default:
+			{
+				$this->view->subview = 'admin/itemtype';
+			}
+		}
+	}
+	
 	
 	public function action_searchodds()
 	{

@@ -27,7 +27,7 @@ $('#TileTypeContainer').jtable({
 					edit: false,
 					create: false,
 					display: function (table) {
-						var $img = $('<img src="/img/drops.png" title="Search Odds" />');
+						var $img = $('<img src="/ails/I_Map.png" title="Search Odds" />');
 						$img.click(function () {
 						
 							$('#TileTypeContainer').jtable('openChildTable',
@@ -47,6 +47,10 @@ $('#TileTypeContainer').jtable({
 										fields: {
 													ItemTypeID:
 													{
+														key:true,
+														list:true,
+														edit:true,
+														create:true,
 														title: 'Item',
 														options: '/admin/searchodds?action=items&TileTypeID=' + table.record.TileTypeID,
 													},
