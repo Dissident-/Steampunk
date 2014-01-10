@@ -90,7 +90,7 @@ $('#ItemTypeContainer').jtable({
 																						AttributeName:
 																						{
 																							title: 'Property',
-																							edit: false,
+																							edit: true,
 																							options: '/admin/itemusageattribute?action=attributes&ItemTypeID=' + table.record.ItemTypeID + '&ItemUsageID=' + table2.record.ItemUsageID,
 																						},
 																						AttributeValue:

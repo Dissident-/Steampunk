@@ -40,7 +40,7 @@ class Admin extends \App\Page{
 			case 'list':
 			{
 				$this->view = $this->pixie->view('json'); // Faster to count in PHP probably, but if/when pagination is used we'll have to use a count_all query anyway, and these aren't exactly intensive
-				$this->view->json = array('Result' => 'OK', 'TotalRecordCount' => $this->pixie->orm->get('TileType')->count_all(), 'Records' => $tiletype->find_all()->as_array(true));
+				$this->view->json = array('Result' => 'OK', 'TotalRecordCount' => $this->pixie->orm->get('TileType')->count_all(), 'Records' => $tiletype->order_by('TypeName', 'ASC')->find_all()->as_array(true));
 				break;
 			}
 			case 'create':
@@ -103,7 +103,7 @@ class Admin extends \App\Page{
 			case 'list':
 			{
 				$this->view = $this->pixie->view('json');
-				$this->view->json = array('Result' => 'OK', 'TotalRecordCount' => $this->pixie->orm->get('ItemCategory')->count_all(), 'Records' => $itemcategory->find_all()->as_array(true));
+				$this->view->json = array('Result' => 'OK', 'TotalRecordCount' => $this->pixie->orm->get('ItemCategory')->count_all(), 'Records' => $itemcategory->order_by('CategoryName', 'ASC')->find_all()->as_array(true));
 				break;
 			}
 			case 'create':
@@ -162,13 +162,13 @@ class Admin extends \App\Page{
 			case 'list':
 			{
 				$this->view = $this->pixie->view('json');
-				$this->view->json = array('Result' => 'OK', 'TotalRecordCount' => $this->pixie->orm->get('ItemType')->count_all(), 'Records' => $itemtype->find_all()->as_array(true));
+				$this->view->json = array('Result' => 'OK', 'TotalRecordCount' => $this->pixie->orm->get('ItemType')->count_all(), 'Records' => $itemtype->order_by('ItemTypeName', 'ASC')->find_all()->as_array(true));
 				break;
 			}
 			case 'categories':
 			{
 				$array = array();
-				$cats = $this->pixie->orm->get('ItemCategory')->find_all()->as_array(true);
+				$cats = $this->pixie->orm->get('ItemCategory')->order_by('CategoryName', 'ASC')->find_all()->as_array(true);
 				foreach($cats as $cat)
 				{
 					$array[] = array('Value' => $cat->ItemCategoryID, 'DisplayText' => $cat->CategoryName);
@@ -296,7 +296,7 @@ class Admin extends \App\Page{
 			case 'list':
 			{
 				$this->view = $this->pixie->view('json');
-				$usages = $this->pixie->db->query('select')->table('item_usage_attribute')->where('ItemTypeID',$post['ItemTypeID'])->where('ItemUsageID',$post['ItemUsageID'])->execute()->as_array();
+				$usages = $this->pixie->db->query('select')->table('item_usage_attribute')->where('ItemTypeID',$post['ItemTypeID'])->where('ItemUsageID',$post['ItemUsageID'])->order_by('AttributeName', 'ASC')->execute()->as_array();
 				$this->view->json = array('Result' => 'OK', 'TotalRecordCount' => count($usages), 'Records' => $usages);
 				break;
 			}
@@ -360,7 +360,7 @@ class Admin extends \App\Page{
 			case 'items':
 			{
 				$array = array();
-				$cats = $this->pixie->orm->get('ItemType')->find_all()->as_array(true);
+				$cats = $this->pixie->orm->get('ItemType')->order_by('ItemTypeName', 'ASC')->find_all()->as_array(true);
 				foreach($cats as $cat)
 				{
 					$array[] = array('Value' => $cat->ItemTypeID, 'DisplayText' => $cat->ItemTypeName);
