@@ -273,7 +273,7 @@ class Game extends \App\Page{
 		$char = $this->view->character;
 		$target = $this->pixie->orm->get('Character')->where('CharacterID', $this->request->post('CharacterID'))->find();
 		$this->view->selectedchar = $this->request->post('CharacterID');
-		if(!$target->loaded() || $char->LocationID != $target->LocationID)
+		if(!$target->loaded() || $char->LocationID != $target->LocationID || $target->HitPoints <= 0)
 		{
 			$this->view->warnings = 'That character isn\'t here!';
 			return;
@@ -298,17 +298,26 @@ class Game extends \App\Page{
 			$this->view->action = 'You attack '.$target->Link.' with your '.$weapon->ItemTypeName.' and miss';
             
             //Attacker log
-			$action = $this->pixie->orm->get('ActivityLog');
-			$action->CharacterID = $char->CharacterID;
-			$action->Activity = '<span class="log-attack-miss">'.$this->view->action.'</span>';
-			$action->save();
-			$char->add('ActivityLog', $action);
+			$actionattacker = $this->pixie->orm->get('ActivityLog');
+			$actionattacker->CharacterID = $char->CharacterID;
+			$actionattacker->Activity = '<span class="log-attack-miss">'.$this->view->action.'</span>';
+			
+			
 			//Target log
-			$action = $this->pixie->orm->get('ActivityLog');
-			$action->CharacterID = $char->CharacterID;
-			$action->Activity = '<span class="log-defend-miss">'.$char->Link.' attacked you with '.$weapon->Article.' '.$weapon->ItemTypeName.' and missed.</span>';
-			$action->save();
-			$target->add('ActivityLog', $action);
+			$actiondefender = $this->pixie->orm->get('ActivityLog');
+			$actiondefender->CharacterID = $target->CharacterID;
+			$actiondefender->Activity = '<span class="log-defend-miss">'.$char->Link.' attacked you with '.$weapon->Article.' '.$weapon->ItemTypeName.' and missed.</span>';
+			
+			$this->pixie->db->get()->execute("START TRANSACTION");
+			$actionattacker->save();
+			$actiondefender->save();
+			$this->pixie->db->query('insert')->table('activity_log_reader')->data(array(array('CharacterID' => $actionattacker->CharacterID, 'ActivityLogID' => $actionattacker->ActivityLogID), array('CharacterID' => $actiondefender->CharacterID, 'ActivityLogID' => $actiondefender->ActivityLogID)))->execute();
+			$this->pixie->db->get()->execute("COMMIT");
+			
+			$log = $this->view->activitylog;
+			array_unshift($log, $actionattacker);
+			$this->view->activitylog = $log;
+			
 			return;
 		}
 		
@@ -316,13 +325,11 @@ class Game extends \App\Page{
 		$this->view->action = 'You attack '.$target->Link.' with your '.$weapon->ItemTypeName.', dealing '.$weapon->Damage.' '.$weapon->DamageType.' damage and gaining '.$weapon->Damage. 'XP!';
 
 		$char->Experience = $char->Experience + $weapon->Damage;
-		$char->save();
-		$target->HitPoints = $target->HitPoints - $weapon->Damage;
-		$target->save();
-        
+		$target->HitPoints = $target->HitPoints - $weapon->Damage;    
+		$actionreaderinserts = array();
+		
 		if($target->HitPoints <= 0)
 		{
-			$target->Kill();
 			$this->view->action .= ' This was enough to kill them!';
             //Everyone in area log
             $action = $this->pixie->orm->get('ActivityLog');
@@ -330,30 +337,41 @@ class Game extends \App\Page{
             $action->Activity = '<span class="log-player-kill">'.$char->Link.' attacked '.$target->Link.' with '.$weapon->Article.' '.$weapon->ItemTypeName.', killing them!</span>';
 			$action->save();
 			$characters = $this->view->character->Location->Character->find_all()->as_array();
-			$data = array();
 			foreach($characters as $loopchar)
 			{
 				if ($loopchar->CharacterID != $char->CharacterID && $loopchar->CharacterID != $target->CharacterID)
-                    $data[] = array('CharacterID' => $loopchar->CharacterID, 'ActivityLogID' => $action->ActivityLogID);
+                    $actionreaderinserts[] = array('CharacterID' => $loopchar->CharacterID, 'ActivityLogID' => $action->ActivityLogID);
 			}
-			$this->pixie->db->query('insert')->table('activity_log_reader')->data($data)->execute(); // Wind contributed batch inserts to Pixie, because Wind is pretty great
+			
 		}
 		
         //Attacker log
-		$action = $this->pixie->orm->get('ActivityLog');
-		$action->CharacterID = $char->CharacterID;
-		$action->Activity = '<span class="log-attack-hit">'.$this->view->action.'</span>';
-		$action->save();
-		$char->add('ActivityLog', $action);
+		$actionattacker = $this->pixie->orm->get('ActivityLog');
+		$actionattacker->CharacterID = $char->CharacterID;
+		$actionattacker->Activity = '<span class="log-attack-hit">'.$this->view->action.'</span>';
+
         //Target log
-		$action = $this->pixie->orm->get('ActivityLog');
-		$action->CharacterID = $char->CharacterID;
-		$action->Activity = '<span class="log-defend-hit">'.$char->Link.' attacked you with '.$weapon->Article.' '.$weapon->ItemTypeName.' and hit, dealing '.$weapon->Damage.' '.$weapon->DamageType.' damage.</span>';
-		$action->save();
-		$target->add('ActivityLog', $action);
+		$actiondefender = $this->pixie->orm->get('ActivityLog');
+		$actiondefender->CharacterID = $target->CharacterID;
+		$actiondefender->Activity = '<span class="log-defend-hit">'.$char->Link.' attacked you with '.$weapon->Article.' '.$weapon->ItemTypeName.' and hit, dealing '.$weapon->Damage.' '.$weapon->DamageType.' damage.</span>';
 		
-		// Need to do this query again in order to pick up on new stuff. TODO: Figure out why adding this into the after() function breaks shit
-		$this->view->activitylog = $this->view->character->ActivityLog->order_by('Timestamp','DESC')->limit(25)->find_all()->as_array();
+		$this->pixie->db->get()->execute("START TRANSACTION");
+		$actionattacker->save();
+		$actionreaderinserts[] = array('CharacterID' => $actionattacker->CharacterID, 'ActivityLogID' => $actionattacker->ActivityLogID);
+		$actiondefender->save();
+		$actionreaderinserts[] = array('CharacterID' => $actiondefender->CharacterID, 'ActivityLogID' => $actiondefender->ActivityLogID);
+		$this->pixie->db->query('insert')->table('activity_log_reader')->data($actionreaderinserts)->execute(); // Wind contributed batch inserts to Pixie, because Wind is pretty great
+		$char->save();
+		if($target->HitPoints <= 0) $target->Kill(); else $target->save();
+		$this->pixie->db->get()->execute("COMMIT");
+		
+		$log = $this->view->activitylog;
+		array_unshift($log, $actionattacker);
+		$this->view->activitylog = $log;
+		
+		
+
+		
 	}
 	
 	public function action_respawn()

@@ -5,6 +5,9 @@ var CI_INDEX = '';
 var temporarilyIgnoreHashChange = false;
 
 var baseURL = window.location.href;
+
+//baseURL = baseURL.replace(':' + location.port, '');
+
 if(window.location.pathname != '/')
 	baseURL = baseURL.replace(window.location.pathname, '');
 if(baseURL.indexOf('#') >= 0)
@@ -315,13 +318,17 @@ function ajaxURL(data)
 	{
 		if(targetElement == '#page_content')
 		{
-			location.hash = '#' + data.href.slice(data.href.indexOf(window.location.hostname) + window.location.hostname.length + 1);
+			newhash = '#' + data.href.slice(data.href.indexOf(window.location.hostname) + window.location.hostname.length + 1);
+			if(location.port != '') newhash = newhash.replace('#' + location.port, '#');
+			location.hash = newhash;
 			return false;
 		}
 		else
 		{
 			temporarilyIgnoreHashChange = true;
-			location.hash = '#' + data.href.slice(data.href.indexOf(window.location.hostname) + window.location.hostname.length + 1);
+			newhash = '#' + data.href.slice(data.href.indexOf(window.location.hostname) + window.location.hostname.length + 1);
+			if(location.port != '') newhash = newhash.replace('#' + location.port, '#');
+			location.hash = newhash;
 		}
 	}
 	
