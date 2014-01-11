@@ -26,7 +26,6 @@ class Character extends \App\Page{
 	public function action_list()
 	{
 		$chars = $this->pixie->orm->get('Character')->with('Location.Plane')->where('AccountID', $this->pixie->auth->user()->AccountID)->order_by('CharName', 'ASC')->find_all()->as_array();
-		$post = $this->request->post();
 		
 		$this->view->characters = $chars;
 

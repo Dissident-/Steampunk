@@ -79,7 +79,10 @@ class Auth extends \App\Page{
  
             if ($logged)
 			{
+				$account = $this->pixie->orm->get('Account')->where('AccountID', $this->pixie->auth->user()->AccountID)->find();
+				$account->RegenerateAuthenticationToken(serialize($this->request->server()));
                 $this->view->subview = 'account/logincomplete';
+				$this->view->token = $account->AuthToken;
 				return;
 			}
 			else
@@ -89,10 +92,34 @@ class Auth extends \App\Page{
         }
         $this->view->subview = 'account/login';
     }
+	
+	public function action_reauthenticate()
+	{
+		$token = $this->request->post('ReauthenticationToken');
+		
+		$account = $this->pixie->orm->get('Account')->where('AuthToken', $token)->find();
+		
+		if($account->loaded())
+		{
+			$account->RegenerateAuthenticationToken(serialize($this->request->server()));
+			$this->view->subview = 'account/reauthenticated';
+			$this->view->token = $account->AuthToken;
+			$this->pixie->auth->provider('password')->set_user($account);
+		}
+		else
+		{
+			$this->view->subview = '';
+		}
+	}
  
     public function action_logout() {
 		// Yeah, let's avoid an error if you logout twice...
-        if($this->pixie->auth->user()) $this->pixie->auth->logout();
+        if($this->pixie->auth->user())
+		{
+			$account = $this->pixie->orm->get('Account')->where('AccountID', $this->pixie->auth->user()->AccountID)->find();
+			$account->RegenerateAuthenticationToken(serialize($this->request->server()));
+			$this->pixie->auth->logout();
+		}
         $this->view->subview = 'account/logout';
     }
 }

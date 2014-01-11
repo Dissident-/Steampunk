@@ -185,11 +185,5 @@
 		
 		</div>
 	</div>
-	 <script type="text/javascript">
-		$( "#inventory_accordion" ).accordion({heightStyle: "content"});
-		$(function() {
-			$( "#right_panel" ).tabs({ active: <?php if( $right == 'inventory') echo '1'; else echo '0';?>});
-		});
-	</script>
 	</div>
 </div>

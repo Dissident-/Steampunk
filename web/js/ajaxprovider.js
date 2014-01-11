@@ -18,6 +18,16 @@ if(baseURL.indexOf('?') >= 0)
 
 var APPNAME = 'Project Steampunk';
 
+// http://diveintohtml5.info/storage.html
+function supports_html5_storage() {
+  try {
+    return 'localStorage' in window && window['localStorage'] !== null;
+  } catch (e) {
+    return false;
+  }
+}
+
+var hasLocalStorage = supports_html5_storage();
 
 $( document ).ajaxComplete(function() {
 	prettify();
@@ -104,10 +114,12 @@ var lastActionData = '';
 var sidebarHiddenByUser = false;
 
 $('html').on('click', 'a', function(e){
+	savePanels();
 	return ajaxURL(this);
 });
 
 $('html').on('submit', 'form', function(e){
+	savePanels();
 	if($(this).find('input[name=no_ajax]').length)
 	{
 		return true;
@@ -127,6 +139,7 @@ $(document).ready(function(){
 	prettify();
 	setAjaxForms();
 	setAjaxLinks();
+	restorePanels();
 
 	if($('.title').length > 0)
 	{
@@ -160,7 +173,7 @@ $(document).ready(function(){
 	
 	$(window).bind('hashchange', function()
 	{
-	
+		savePanels();
 		if(temporarilyIgnoreHashChange)
 		{
 			temporarilyIgnoreHashChange = false
@@ -214,6 +227,7 @@ $(document).ready(function(){
 						setAjaxForms();
 						setAjaxLinks();
 						prettify();
+						restorePanels();
 						/*if(window.location.pathname.slice(1) == location.hash.slice(1))
 						{
 							location.hash = '';
@@ -335,6 +349,7 @@ function ajaxURL(data)
 				setAjaxForms();
 				setAjaxLinks();
 				prettify();
+				restorePanels();
 				/*if(window.location.pathname.slice(1) == location.hash.slice(1))
 				{
 					location.hash = '';
@@ -424,6 +439,7 @@ function ajaxForm(data)
 			setAjaxForms();
 			setAjaxLinks();
 			prettify();
+			restorePanels();
 			$("html, body").animate({ scrollTop: 0 }, "slow");
 		},
 		complete: function(XHR, status){
@@ -686,4 +702,23 @@ function setAjaxLinks()
 	$("a").click(function(e){
 		return ajaxURL(this);
 	});
+}
+
+function savePanels()
+{
+	if(!hasLocalStorage) return;
+	if($( "#right_panel" ).length) localStorage['right_panel'] = $( "#right_panel" ).tabs( "option", "active" );
+	if($( "#inventory_accordion" ).length) localStorage['inventory_accordion'] = $( "#inventory_accordion" ).accordion( "option", "active" );
+}
+
+function restorePanels()
+{
+	$( "#right_panel" ).tabs();
+	if(!hasLocalStorage)
+	{
+		$( "#inventory_accordion" ).accordion({heightStyle: "content"});
+		return;
+	}
+	if(localStorage['right_panel'] != null && localStorage['right_panel'] != 'null') $( "#right_panel" ).tabs( "option", "active" ,parseInt(localStorage['right_panel']) );
+	if(localStorage['inventory_accordion'] != null && localStorage['inventory_accordion'] != 'null') $( "#inventory_accordion" ).accordion({heightStyle: "content", active: parseInt(localStorage['inventory_accordion'])}); else $( "#inventory_accordion" ).accordion({heightStyle: "content"});
 }

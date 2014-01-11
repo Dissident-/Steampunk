@@ -24,4 +24,16 @@ class Account extends \PHPixie\ORM\Model{
         )
     );
 
+	public function RegenerateAuthenticationToken($randomData = null)
+	{
+		if($randomData === null) $randomData = time().rand();
+		$this->AuthToken = null;
+		while($this->AuthToken == null || $this->pixie->orm->get('Account')->where('AuthToken', $this->AuthToken)->count_all() > 0)
+		{
+			$randomData = sha1($randomData);
+			$this->AuthToken = sha1(time().rand().$randomData);
+		}
+		$this->save();
+	}
+	
 }

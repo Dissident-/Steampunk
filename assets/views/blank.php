@@ -1,3 +1,3 @@
 <?php 
-	if(isset($subview)) require($subview.'.php');
+	if(isset($subview) && $subview != '') require($subview.'.php');
 ?>
