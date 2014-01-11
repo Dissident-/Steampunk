@@ -9,5 +9,5 @@
 		width: 350,
 		modal: true
 	});
-	//location.reload();
+	location.reload();
  </script>

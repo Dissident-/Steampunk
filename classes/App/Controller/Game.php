@@ -82,15 +82,22 @@ class Game extends \App\Page{
 		$this->view->action = '';
 		$this->view->warnings = '';
 		$this->view->character = $character;
-		$this->view->inventory = $this->pixie->orm->get('ItemInstance')->with('Type.Category')->where('CharacterID', $this->view->character->CharacterID)->find_all()->as_array();
-		if($this->view->character->HitPoints > 0) $this->view->map = $this->pixie->orm->get('Location')->with('Type')->where('CoordinateX', '>', $character->Location->CoordinateX - 3)->where('CoordinateX', '<', $character->Location->CoordinateX + 3)->where('CoordinateY', '>', $character->Location->CoordinateY - 3)->where('CoordinateX', '<', $character->Location->CoordinateY + 3)->where('PlaneID', '=', $character->Location->PlaneID)->where('CoordinateZ', $character->Location->CoordinateZ)->order_by('CoordinateY','asc')->order_by('CoordinateX','asc')->find_all()->as_array();
 		$this->view->post = $this->request->post();
 		$this->view->get = $this->request->get();
-		
-		// TODO: Select more records if there's been a lot of activity since last user login
-		$this->view->activitylog = $this->view->character->ActivityLog->order_by('Timestamp','DESC')->limit(25)->find_all()->as_array();
 	}
 
+	public function after()
+	{
+		if(!$this->dynamicjs)
+		{
+			$character = $this->view->character;
+			$this->view->activitylog = $this->view->character->ActivityLog->order_by('Timestamp','DESC')->limit(25)->find_all()->as_array();
+			$this->view->inventory = $this->pixie->orm->get('ItemInstance')->with('Type.Category')->where('CharacterID', $this->view->character->CharacterID)->find_all()->as_array();
+			if($this->view->character->HitPoints > 0) $this->view->map = $this->pixie->orm->get('Location')->with('Type')->where('CoordinateX', '>', $character->Location->CoordinateX - 3)->where('CoordinateX', '<', $character->Location->CoordinateX + 3)->where('CoordinateY', '>', $character->Location->CoordinateY - 3)->where('CoordinateX', '<', $character->Location->CoordinateY + 3)->where('PlaneID', '=', $character->Location->PlaneID)->where('CoordinateZ', $character->Location->CoordinateZ)->order_by('CoordinateY','asc')->order_by('CoordinateX','asc')->find_all()->as_array();
+		}
+		parent::after();
+	}
+	
 	public function action_index()
 	{
 		if($this->view->character->HitPoints <= 0) $this->view->subview = 'game/dead';
@@ -127,12 +134,10 @@ class Game extends \App\Page{
 				$this->view->warnings = 'You are too tired to move.';
 				return;
 			}
-			$this->pixie->db->query('update')->table('character')->data(array('LocationID' => $loc->LocationID))->where('CharacterID',$char->CharacterID)->execute();
+			$this->pixie->db->query('update')->table('character')->data(array('LocationID' => $loc->LocationID, 'ActionPoints' => $this->pixie->db->expr('`ActionPoints` - 1')))->where('CharacterID',$char->CharacterID)->execute();
 			// Would be nice if it wasn't necessary to do another DB query
 			$this->view->character = $this->pixie->orm->get('Character')->with('Location.Plane')->where('CharacterID', $char->CharacterID)->find();
-			$this->surroundings = $this->pixie->orm->get('Location')->with('Type')->where('CoordinateX', '>', $char->Location->CoordinateX - 3)->where('CoordinateX', '<', $char->Location->CoordinateX + 3)->where('CoordinateY', '>', $char->Location->CoordinateY - 3)->where('CoordinateX', '<', $char->Location->CoordinateY + 3)->where('PlaneID', '=', $char->Location->PlaneID)->where('CoordinateZ', $char->Location->CoordinateZ)->order_by('CoordinateY','asc')->order_by('CoordinateX','asc')->find_all()->as_array();
 			$this->view->character = $char;
-			$this->view->map = $this->surroundings;
 		}
 		else // Someone wants to break shit or is lagging like hell and button mashing
 		{
@@ -168,8 +173,6 @@ class Game extends \App\Page{
 			}
 			
 			$this->pixie->db->query('insert')->table('activity_log_reader')->data($data)->execute(); // I contributed batch inserts to PHPixie :D
-			
-			$this->view->activitylog = $this->view->character->ActivityLog->order_by('Timestamp','DESC')->limit(25)->find_all()->as_array();
 		}
 	}
 	
@@ -178,23 +181,20 @@ class Game extends \App\Page{
 		$this->view->right = 'inventory';
 		$char = $this->view->character;
 		
-		$item = $this->pixie->orm->get('ItemInstance')->with('Type')->where('ItemInstanceID', $this->request->param('arg1'))->find();
+		$item = $this->pixie->orm->get('ItemInstance')->with('Type')->where('CharacterID', $char->CharacterID)->where('ItemInstanceID', $this->request->param('arg1'))->find();
 		
-		if($item->loaded() && $item->CharacterID == $char->CharacterID) // Ensure item exists and belongs to correct player
+		if($item->loaded()) // Ensure item exists and belongs to correct player
 		{	
 			$this->view->action = 'You drop your '.$item->Type->ItemTypeName;
 			$this->view->ItemInstanceID = $item->ItemInstanceID;
+			$this->pixie->db->get()->execute("START TRANSACTION");
+			$this->pixie->db->query('delete')->table('item_usage_attribute')->where('ItemInstanceID', $item->ItemInstanceID)->execute();
 			$item->delete();
+			$this->pixie->db->get()->execute("COMMIT");
 			if($this->dynamicjs)
 			{
 				$this->view->subview = 'game/dynamicjs/dropitem';
 			}
-			else
-			{
-				// Avoidable query by removing from array instead, probably faster later on
-				$this->view->inventory = $this->pixie->orm->get('ItemInstance')->with('Type.Category')->where('CharacterID', $this->view->character->CharacterID)->find_all()->as_array();
-			}
-
 		}
 		else
 		{
@@ -309,14 +309,11 @@ class Game extends \App\Page{
 			$actiondefender->Activity = '<span class="log-defend-miss">'.$char->Link.' attacked you with '.$weapon->Article.' '.$weapon->ItemTypeName.' and missed.</span>';
 			
 			$this->pixie->db->get()->execute("START TRANSACTION");
+			$char->deltas();
 			$actionattacker->save();
 			$actiondefender->save();
 			$this->pixie->db->query('insert')->table('activity_log_reader')->data(array(array('CharacterID' => $actionattacker->CharacterID, 'ActivityLogID' => $actionattacker->ActivityLogID), array('CharacterID' => $actiondefender->CharacterID, 'ActivityLogID' => $actiondefender->ActivityLogID)))->execute();
 			$this->pixie->db->get()->execute("COMMIT");
-			
-			$log = $this->view->activitylog;
-			array_unshift($log, $actionattacker);
-			$this->view->activitylog = $log;
 			
 			return;
 		}
@@ -324,8 +321,8 @@ class Game extends \App\Page{
 		// TODO: Soaks
 		$this->view->action = 'You attack '.$target->Link.' with your '.$weapon->ItemTypeName.', dealing '.$weapon->Damage.' '.$weapon->DamageType.' damage and gaining '.$weapon->Damage. 'XP!';
 
-		$char->Experience = $char->Experience + $weapon->Damage;
-		$target->HitPoints = $target->HitPoints - $weapon->Damage;    
+		$char->AlterXP($weapon->Damage);
+		$target->AlterHP(0 - $weapon->Damage);    
 		$actionreaderinserts = array();
 		
 		if($target->HitPoints <= 0)
@@ -361,17 +358,9 @@ class Game extends \App\Page{
 		$actiondefender->save();
 		$actionreaderinserts[] = array('CharacterID' => $actiondefender->CharacterID, 'ActivityLogID' => $actiondefender->ActivityLogID);
 		$this->pixie->db->query('insert')->table('activity_log_reader')->data($actionreaderinserts)->execute(); // Wind contributed batch inserts to Pixie, because Wind is pretty great
-		$char->save();
-		if($target->HitPoints <= 0) $target->Kill(); else $target->save();
-		$this->pixie->db->get()->execute("COMMIT");
-		
-		$log = $this->view->activitylog;
-		array_unshift($log, $actionattacker);
-		$this->view->activitylog = $log;
-		
-		
-
-		
+		$char->deltas();
+		if($target->HitPoints <= 0) $target->Kill(); else $target->deltas();
+		$this->pixie->db->get()->execute("COMMIT");	
 	}
 	
 	public function action_respawn()
@@ -380,8 +369,5 @@ class Game extends \App\Page{
 		$this->view->character = $this->pixie->orm->get('Character')->with('Location.Plane')->where('AccountID', $this->pixie->auth->user()->AccountID)->where('CharacterID', $this->request->param('CharacterID'))->find();
 		$this->view->map = $this->pixie->orm->get('Location')->with('Type')->where('CoordinateX', '>', $this->view->character->Location->CoordinateX - 3)->where('CoordinateX', '<', $this->view->character->Location->CoordinateX + 3)->where('CoordinateY', '>', $this->view->character->Location->CoordinateY - 3)->where('CoordinateX', '<', $this->view->character->Location->CoordinateY + 3)->where('PlaneID', '=', $this->view->character->Location->PlaneID)->where('CoordinateZ', $this->view->character->Location->CoordinateZ)->order_by('CoordinateY','asc')->order_by('CoordinateX','asc')->find_all()->as_array();
 		$this->view->action = 'You have respawned.';
-		
-		// Need to do this query again in order to pick up on new stuff. TODO: Figure out why adding this into the after() function breaks shit
-		$this->view->activitylog = $this->view->character->ActivityLog->order_by('Timestamp','DESC')->limit(25)->find_all()->as_array();
 	}
 }

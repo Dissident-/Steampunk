@@ -46,18 +46,37 @@ class Character extends \PHPixie\ORM\Model{
         )
     );
 	
+	protected $deltas = array();
+	
 	public function SpendAP($amount = 1)
 	{
 		if($this->ActionPoints > 0)
 		{
 			$this->ActionPoints = $this->ActionPoints - $amount;
-			$this->save();
+			if(isset($deltas['ActionPoints'])) $deltas['ActionPoints'] = $deltas['ActionPoints'] - $amount; else $deltas['ActionPoints'] = 0 - $amount;
 			return true;
 		}
 		else
 		{
 			return false;
 		}
+	}
+	
+	public function AlterXP($amount)
+	{
+		$this->Experience = $this->Experience + $amount;
+		if(isset($this->deltas['Experience'])) $this->deltas['Experience'] = $this->deltas['Experience'] + $amount; else $this->deltas['Experience'] = $amount;
+		return true;
+
+	}
+	
+	public function AlterHP($amount)
+	{
+		$this->HitPoints = $this->HitPoints + $amount;
+		if(isset($this->deltas['HitPoints'])) $this->deltas['HitPoints'] = $this->deltas['HitPoints'] + $amount; else $this->deltas['HitPoints'] = $amount;
+		if($this->HitPoints <= 0) $this->Kill();
+		return true;
+
 	}
 	
 	public function Kill()
@@ -77,6 +96,26 @@ class Character extends \PHPixie\ORM\Model{
 		$this->save();
 		$action->save();
 		$this->add('ActivityLog', $action);
+	}
+	
+	public function deltas()
+	{
+		$updateparts = array();
+		foreach($this->deltas as $k => $v)
+		{
+			if($v != 0) $updateparts[$k] = $this->pixie->db->expr('`'.$k.'` '.($v > 0 ? ' + '.$v : ' - '.abs($v)));
+		}
+		if(count($updateparts) > 0) 
+		{
+			$this->pixie->db->query('update')->table('character')->data($updateparts)->where('CharacterID',$this->CharacterID)->execute();
+		}
+		$this->deltas = array();
+	}
+	
+	public function save()
+	{
+		$this->deltas = array();
+		parent::save();
 	}
 	
 	public function Respawn()
