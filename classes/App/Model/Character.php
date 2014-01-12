@@ -53,7 +53,7 @@ class Character extends \PHPixie\ORM\Model{
 		if($this->ActionPoints > 0)
 		{
 			$this->ActionPoints = $this->ActionPoints - $amount;
-			if(isset($deltas['ActionPoints'])) $deltas['ActionPoints'] = $deltas['ActionPoints'] - $amount; else $deltas['ActionPoints'] = 0 - $amount;
+			if(isset($this->deltas['ActionPoints'])) $this->deltas['ActionPoints'] = $this->deltas['ActionPoints'] - $amount; else $this->deltas['ActionPoints'] = 0 - $amount;
 			return true;
 		}
 		else
@@ -108,6 +108,7 @@ class Character extends \PHPixie\ORM\Model{
 		if(count($updateparts) > 0) 
 		{
 			$this->pixie->db->query('update')->table('character')->data($updateparts)->where('CharacterID',$this->CharacterID)->execute();
+			//var_dump($this->pixie->db->query('update')->table('character')->data($updateparts)->where('CharacterID',$this->CharacterID)->query());
 		}
 		$this->deltas = array();
 	}

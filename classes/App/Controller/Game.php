@@ -270,7 +270,7 @@ class Game extends \App\Page{
 	
 	public function action_attack()
 	{
-		$char = $this->view->character;
+		$char =& $this->view->character;
 		$target = $this->pixie->orm->get('Character')->where('CharacterID', $this->request->post('CharacterID'))->find();
 		$this->view->selectedchar = $this->request->post('CharacterID');
 		if(!$target->loaded() || $char->LocationID != $target->LocationID || $target->HitPoints <= 0)
