@@ -205,7 +205,7 @@ class Game extends \App\Page{
 	public function action_search()
 	{
 		$this->view->right = 'inventory';
-		$char = $this->view->character;
+		$char =& $this->view->character;
 		
 		
 		if(!$char->SpendAP(1))
@@ -252,6 +252,7 @@ class Game extends \App\Page{
 		if($found == null)
 		{
 			$this->view->action = 'You search and find nothing';
+			$char->deltas();
 		}
 		else
 		{
@@ -260,9 +261,10 @@ class Game extends \App\Page{
 			$myitem = $this->pixie->orm->get('ItemInstance');
 			$myitem->CharacterID = $char->CharacterID;
 			$myitem->ItemTypeID = $found;
+			$this->pixie->db->get()->execute("START TRANSACTION");
+			$char->deltas();
 			$myitem->Save();
-			
-			$this->view->inventory = $this->pixie->orm->get('ItemInstance')->with('Type.Category')->where('CharacterID', $this->view->character->CharacterID)->find_all()->as_array();
+			$this->pixie->db->get()->execute("COMMIT");
 			// No more "a(n)"!
 			$this->view->action = 'You search and find '.$item->Article.' '.$item->ItemTypeName.'!';
 		}

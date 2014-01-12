@@ -2,9 +2,9 @@
 <?php
 	// Yellow and red messages that slide in right of character details
 	echo '<div id="game_minor_actions" style="float:left;margin-left:10px" class="padding-10 ui-state-highlight ui-corner-all'.( $action == '' ? ' ui-helper-hidden' : '' ).'">';
-	if($action != '') echo $action.'<script type="text/javascript">$(\'#game_minor_actions\').hide().show(\'slide\')</script>';
+	if($action != '') echo $action;
 	echo '</div><div id="game_warnings" style="float:left;margin-left:10px" class="padding-10 ui-state-error ui-corner-all'.( $warnings == '' ? ' ui-helper-hidden' : '' ).'">';
-	if($warnings != '') echo $warnings.'<script type="text/javascript">$(\'#game_warnings\').hide().show(\'slide\');</script>';
+	if($warnings != '') echo $warnings;
 	echo '</div>';
 	
 ?><div class="clear-left"></div>
