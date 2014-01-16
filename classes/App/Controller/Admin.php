@@ -242,7 +242,7 @@ class Admin extends \App\Page{
 			case 'usages':
 			{
 				$array = array();
-				$usages = $this->pixie->orm->get('ItemUsage')->find_all()->as_array(true);
+				$usages = $this->pixie->orm->get('ItemUsage')->order_by('ItemUsageName', 'ASC')->find_all()->as_array(true);
 				foreach($usages as $use)
 				{
 					$array[] = array('Value' => $use->ItemUsageID, 'DisplayText' => $use->ItemUsageName);
@@ -308,12 +308,22 @@ class Admin extends \App\Page{
 				if($usage->ItemUsageName == 'weapon')
 				{
 					$usages = array('Damage', 'DamageType', 'HitChance');
+					foreach($usages as $use)
+					{
+						$array[] = array('Value' => $use, 'DisplayText' => $use);
+					}
+				}
+				else if($usage->ItemUsageName == 'armour')
+				{
+					$usages = $this->pixie->db->query('select')->table('item_usage_attribute')->fields($this->pixie->db->expr('DISTINCT `AttributeValue`'))->where('AttributeName', 'DamageType')->order_by('AttributeName', 'ASC')->execute()->as_array();
+					foreach($usages as $use)
+					{
+						$array[] = array('Value' => 'Soak_'.$use->AttributeValue, 'DisplayText' => $use->AttributeValue.' (Soak)');
+						$array[] = array('Value' => 'Resist_'.$use->AttributeValue, 'DisplayText' => $use->AttributeValue.' (% Resistance)');
+					}
 				}
 				
-				foreach($usages as $use)
-				{
-					$array[] = array('Value' => $use, 'DisplayText' => $use);
-				}
+
 				$this->view = $this->pixie->view('json');
 				$this->view->json = array('Result' => 'OK', 'Options' => $array);
 				break;
@@ -333,6 +343,28 @@ class Admin extends \App\Page{
 				
 				$this->view->json = array('Result' => 'OK', 'Record' => $attribute);
 
+				break;
+			}	
+			case 'create':
+			{
+				$attribute = array();
+				$attribute['ItemUsageID'] = $post['ItemUsageID'];
+				$attribute['ItemTypeID'] = $post['ItemTypeID'];
+				$attribute['AttributeName'] = $post['AttributeName'];
+				$attribute['AttributeValue'] = $post['AttributeValue'];
+				
+				$this->pixie->db->query('insert')->table('item_usage_attribute')->data($attribute)->execute();
+				
+				$this->view = $this->pixie->view('json');
+				$this->view->json = array('Result' => 'OK', 'Record' => $attribute);
+				
+				break;
+			}
+			case 'delete':
+			{
+				$this->view = $this->pixie->view('json');
+				$this->pixie->db->query('delete')->table('item_usage_attribute')->where('ItemUsageAttribute', $post['ItemUsageAttribute'])->execute();
+				$this->view->json = array('Result' => 'OK');
 				break;
 			}
 			default:

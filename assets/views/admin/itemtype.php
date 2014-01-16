@@ -54,7 +54,24 @@ $('#ItemTypeContainer').jtable({
 														display: function (table2) {
 															var $img = $('<img src="/ails/I_Message02.png" title="Properties" />');
 															$img.click(function () {
+																
 															
+																if(table2.record.ItemUsageName == 'armour')
+																{
+																		actions = {
+																				listAction: '/admin/itemusageattribute?action=list&ItemTypeID=' + table.record.ItemTypeID + '&ItemUsageID=' + table2.record.ItemUsageID,
+																				createAction: '/admin/itemusageattribute?action=create&ItemTypeID=' + table.record.ItemTypeID + '&ItemUsageID=' + table2.record.ItemUsageID,
+																				updateAction: '/admin/itemusageattribute?action=update&ItemTypeID=' + table.record.ItemTypeID + '&ItemUsageID=' + table2.record.ItemUsageID,
+																				deleteAction: '/admin/itemusageattribute?action=delete&ItemTypeID=' + table.record.ItemTypeID + '&ItemUsageID=' + table2.record.ItemUsageID
+																				}
+																}
+																else
+																{
+																	actions = {
+																				listAction: '/admin/itemusageattribute?action=list&ItemTypeID=' + table.record.ItemTypeID + '&ItemUsageID=' + table2.record.ItemUsageID,
+																				updateAction: '/admin/itemusageattribute?action=update&ItemTypeID=' + table.record.ItemTypeID + '&ItemUsageID=' + table2.record.ItemUsageID
+																			};
+																}
 																$('#ItemTypeContainer').jtable('openChildTable',
 																		$img.closest('tr'),
 																		{
@@ -63,10 +80,7 @@ $('#ItemTypeContainer').jtable({
 																			sorting: false, //Enable sorting
 																			defaultSorting: 'Title ASC', //Set default sorting
 																			title: 'Item Properties',
-																			actions: {
-																				listAction: '/admin/itemusageattribute?action=list&ItemTypeID=' + table.record.ItemTypeID + '&ItemUsageID=' + table2.record.ItemUsageID,
-																				updateAction: '/admin/itemusageattribute?action=update&ItemTypeID=' + table.record.ItemTypeID + '&ItemUsageID=' + table2.record.ItemUsageID
-																			},
+																			actions: actions,
 																			fields: {
 																						ItemUsageAttribute:
 																						{

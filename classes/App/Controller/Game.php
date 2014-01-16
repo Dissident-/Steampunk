@@ -320,11 +320,23 @@ class Game extends \App\Page{
 			return;
 		}
 		
-		// TODO: Soaks
-		$this->view->action = 'You attack '.$target->Link.' with your '.$weapon->ItemTypeName.', dealing '.$weapon->Damage.' '.$weapon->DamageType.' damage and gaining '.$weapon->Damage. 'XP!';
+		$damage = $weapon->Damage;
+		
+		if(isset($target->Defenses[$weapon->DamageType]))
+		{
+			$damage = $damage - $target->Defenses[$weapon->DamageType]['Soak'];
+			$resist = $target->Defenses[$weapon->DamageType]['Resist'];
+			if($resist > 0) $damage = round($damage * (100 - $resist) / 100);
+			if($weapon->Damage > 0 && $resist < 100)  $damage = max($damage, 1);
+		}
+		
+		$soaked = $weapon->Damage - $damage;
 
-		$char->AlterXP($weapon->Damage);
-		$target->AlterHP(0 - $weapon->Damage);    
+		$this->view->action = 'You attack '.$target->Link.' with your '.$weapon->ItemTypeName.', dealing '.$damage.' '.$weapon->DamageType.' damage and gaining '.$damage. 'XP!';
+		if($soaked > 0) $this->view->action .= ' Damage reduced by '.$soaked.' due to soaks and resists.';
+
+		$char->AlterXP($damage);
+		$target->AlterHP(0 - $damage);    
 		$actionreaderinserts = array();
 		
 		if($target->HitPoints <= 0)
@@ -352,8 +364,7 @@ class Game extends \App\Page{
         //Target log
 		$actiondefender = $this->pixie->orm->get('ActivityLog');
 		$actiondefender->CharacterID = $target->CharacterID;
-		$actiondefender->Activity = '<span class="log-defend-hit">'.$char->Link.' attacked you with '.$weapon->Article.' '.$weapon->ItemTypeName.' and hit, dealing '.$weapon->Damage.' '.$weapon->DamageType.' damage.</span>';
-		
+		$actiondefender->Activity = '<span class="log-defend-hit">'.$char->Link.' attacked you with '.$weapon->Article.' '.$weapon->ItemTypeName.' and hit, dealing '.$damage.' '.$weapon->DamageType.' damage'.($soaked > 0 ? ' (reduced by '.$soaked.' due to soaks and resists)' : '').'</span>';
 		$this->pixie->db->get()->execute("START TRANSACTION");
 		$actionattacker->save();
 		$actionreaderinserts[] = array('CharacterID' => $actionattacker->CharacterID, 'ActivityLogID' => $actionattacker->ActivityLogID);
@@ -361,7 +372,7 @@ class Game extends \App\Page{
 		$actionreaderinserts[] = array('CharacterID' => $actiondefender->CharacterID, 'ActivityLogID' => $actiondefender->ActivityLogID);
 		$this->pixie->db->query('insert')->table('activity_log_reader')->data($actionreaderinserts)->execute(); // Wind contributed batch inserts to Pixie, because Wind is pretty great
 		$char->deltas();
-		if($target->HitPoints <= 0) $target->Kill(); else $target->deltas();
+		$target->deltas();
 		$this->pixie->db->get()->execute("COMMIT");	
 	}
 	

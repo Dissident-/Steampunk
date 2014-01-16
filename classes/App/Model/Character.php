@@ -139,7 +139,9 @@ class Character extends \PHPixie\ORM\Model{
 		}
 		else if($property == 'Weaponry')
 		{
-			$weaponrydata = $this->pixie->db->query('select')->table('item_instance')->fields('item_instance.*', 'item_type.*', 'item_usage_attribute.AttributeName', 'item_usage_attribute.AttributeValue')->join('item_type', array('item_instance.ItemTypeID', 'item_type.ItemTypeID'))->join('item_type_usage', array('item_type.ItemTypeID', 'item_type_usage.ItemTypeID'))->join('item_usage', array('item_type_usage.ItemUsageID', 'item_usage.ItemUsageID'))->join('item_usage_attribute',array(array('item_instance.ItemInstanceID','item_usage_attribute.ItemInstanceID'), array('or', array('item_type.ItemTypeID', 'item_usage_attribute.ItemTypeID'))),'left')->where('item_instance.CharacterID', $this->CharacterID)->where('item_usage.ItemUsageName', 'weapon')->execute()->as_array();
+			// Need to optimise this to make better use of indexes, for now only perform join on one condition
+			//$weaponrydata = $this->pixie->db->query('select')->table('item_instance')->fields('item_instance.*', 'item_type.*', 'item_usage_attribute.AttributeName', 'item_usage_attribute.AttributeValue')->join('item_type', array('item_instance.ItemTypeID', 'item_type.ItemTypeID'))->join('item_type_usage', array('item_type.ItemTypeID', 'item_type_usage.ItemTypeID'))->join('item_usage', array('item_type_usage.ItemUsageID', 'item_usage.ItemUsageID'))->join('item_usage_attribute',array(array('item_instance.ItemInstanceID','item_usage_attribute.ItemInstanceID'), array('or', array('item_type.ItemTypeID', 'item_usage_attribute.ItemTypeID'))),'left')->where('item_instance.CharacterID', $this->CharacterID)->where('item_usage.ItemUsageName', 'weapon')->execute()->as_array();
+			$weaponrydata = $this->pixie->db->query('select')->table('item_instance')->fields('item_instance.*', 'item_type.*', 'item_usage_attribute.AttributeName', 'item_usage_attribute.AttributeValue')->join('item_type', array('item_instance.ItemTypeID', 'item_type.ItemTypeID'))->join('item_type_usage', array('item_type.ItemTypeID', 'item_type_usage.ItemTypeID'))->join('item_usage', array('item_type_usage.ItemUsageID', 'item_usage.ItemUsageID'))->join('item_usage_attribute',array('item_type.ItemTypeID', 'item_usage_attribute.ItemTypeID'),'left')->where('item_instance.CharacterID', $this->CharacterID)->where('item_usage.ItemUsageName', 'weapon')->execute()->as_array();
 			$weaponry = array();
 			
 			$weapontypes = array();
@@ -192,6 +194,21 @@ class Character extends \PHPixie\ORM\Model{
 					$working_weaponry[$k] = $v;
 			}
 			return $working_weaponry;
+		}
+		else if($property == 'Defenses')
+		{
+			$def = $this->pixie->db->query('select')->table('item_instance')->fields($this->pixie->db->expr('MAX(CAST(`item_usage_attribute`.`AttributeValue` AS SIGNED)) AS \'Value\''), 'item_usage_attribute.AttributeName')->join('item_type_usage', array('item_instance.ItemTypeID', 'item_type_usage.ItemTypeID'))->join('item_usage', array('item_type_usage.ItemUsageID', 'item_usage.ItemUsageID'))->join('item_usage_attribute',array('item_instance.ItemTypeID', 'item_usage_attribute.ItemTypeID'),'left')->where('item_instance.CharacterID', $this->CharacterID)->where('item_usage.ItemUsageName', $this->pixie->db->expr('\'armour\' AND (`item_usage_attribute`.`AttributeName` LIKE \'Soak_%\' OR `item_usage_attribute`.`AttributeName` LIKE \'Resist_%\')'))->group_by('item_usage_attribute.AttributeName')->execute()->as_array();
+			
+			$defenses = array();
+			
+			foreach($def as $defstat)
+			{
+				$attr = explode('_', $defstat->AttributeName, 2);
+				if(!isset($defenses[$attr[1]])) $defenses[$attr[1]] = array('Soak' => 0, 'Resist' => 0);
+				$defenses[$attr[1]][$attr[0]] = $defstat->Value;
+			}
+			
+			return $defenses;
 		}
 	}
 }
