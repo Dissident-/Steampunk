@@ -6,25 +6,25 @@
         "source": {
             "type": "git",
             "url": "https://github.com/dracony/PHPixie-Core.git",
-            "reference": "0133c031b634d1ea5074e213f8bc5fab2e53a9f2"
+            "reference": "bcd1a507de70c423f63a1d2f8697ba671b7613e4"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/dracony/PHPixie-Core/zipball/0133c031b634d1ea5074e213f8bc5fab2e53a9f2",
-            "reference": "0133c031b634d1ea5074e213f8bc5fab2e53a9f2",
+            "url": "https://api.github.com/repos/dracony/PHPixie-Core/zipball/bcd1a507de70c423f63a1d2f8697ba671b7613e4",
+            "reference": "bcd1a507de70c423f63a1d2f8697ba671b7613e4",
             "shasum": ""
         },
         "require": {
             "php": ">=5.3.0"
         },
-        "time": "2013-08-27 16:03:04",
+        "time": "2014-01-17 22:48:42",
         "type": "library",
         "extra": {
             "branch-alias": {
                 "dev-master": "2.*-dev"
             }
         },
-        "installation-source": "dist",
+        "installation-source": "source",
         "autoload": {
             "psr-0": {
                 "PHPixie": "classes/"
@@ -54,18 +54,18 @@
         "source": {
             "type": "git",
             "url": "https://github.com/dracony/PHPixie-DB.git",
-            "reference": "2f4128dd742de27c47a7ad94f63df105f0e7bc5b"
+            "reference": "34d4dfb168a84729a3314aff7706d3c029663409"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/dracony/PHPixie-DB/zipball/2f4128dd742de27c47a7ad94f63df105f0e7bc5b",
-            "reference": "2f4128dd742de27c47a7ad94f63df105f0e7bc5b",
+            "url": "https://api.github.com/repos/dracony/PHPixie-DB/zipball/34d4dfb168a84729a3314aff7706d3c029663409",
+            "reference": "34d4dfb168a84729a3314aff7706d3c029663409",
             "shasum": ""
         },
         "require": {
             "phpixie/core": "2.*@dev"
         },
-        "time": "2013-10-31 16:27:29",
+        "time": "2013-12-24 20:23:40",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -105,18 +105,18 @@
         "source": {
             "type": "git",
             "url": "https://github.com/dracony/PHPixie-ORM.git",
-            "reference": "2c42d4b89cbee11eb7a886c18530dbea3bde0830"
+            "reference": "e332aefead3be0e1a72c2e4fe1b26ebdb5ff36db"
         },
         "dist": {
             "type": "zip",
-            "url": "https://api.github.com/repos/dracony/PHPixie-ORM/zipball/2c42d4b89cbee11eb7a886c18530dbea3bde0830",
-            "reference": "2c42d4b89cbee11eb7a886c18530dbea3bde0830",
+            "url": "https://api.github.com/repos/dracony/PHPixie-ORM/zipball/e332aefead3be0e1a72c2e4fe1b26ebdb5ff36db",
+            "reference": "e332aefead3be0e1a72c2e4fe1b26ebdb5ff36db",
             "shasum": ""
         },
         "require": {
             "phpixie/db": "2.*@dev"
         },
-        "time": "2013-11-25 14:42:28",
+        "time": "2014-01-02 15:26:43",
         "type": "library",
         "extra": {
             "branch-alias": {
@@ -394,6 +394,58 @@
             "Authentication",
             "authorization",
             "facebook"
+        ]
+    },
+    {
+        "name": "phpixie/cache",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/dracony/PHPixie-Cache.git",
+            "reference": "388d1ce8797d2dab0f3156d0a3c570c34e2ec4d6"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/dracony/PHPixie-Cache/zipball/388d1ce8797d2dab0f3156d0a3c570c34e2ec4d6",
+            "reference": "388d1ce8797d2dab0f3156d0a3c570c34e2ec4d6",
+            "shasum": ""
+        },
+        "require": {
+            "phpixie/db": "2.*@dev"
+        },
+        "time": "2013-09-02 13:05:26",
+        "type": "library",
+        "extra": {
+            "branch-alias": {
+                "dev-master": "2.x-dev"
+            }
+        },
+        "installation-source": "dist",
+        "autoload": {
+            "psr-0": {
+                "PHPixie": "classes/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "BSD"
+        ],
+        "authors": [
+            {
+                "name": "Roman Tsiupa",
+                "email": "draconyster@gmail.com",
+                "homepage": "http://dracony.org"
+            }
+        ],
+        "description": "Cache library for PHPixie",
+        "homepage": "http://phpixie.com",
+        "keywords": [
+            "apc",
+            "cache",
+            "database",
+            "memcache",
+            "xcache"
         ]
     }
 ]

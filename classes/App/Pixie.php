@@ -22,6 +22,6 @@ class Pixie extends \PHPixie\Pixie {
 	}
 	
 	public function view_helper(){
-         return new \App\View\Helper;
+         return new \App\View\Helper($this);
     }
 }

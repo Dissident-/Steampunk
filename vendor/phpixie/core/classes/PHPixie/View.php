@@ -79,6 +79,17 @@ class View
 	}
 
 	/**
+	 * Manages checking whether a dynamic property has been defined or not
+	 *
+	 * @param string $key Property name
+	 * @return boolean
+	 */
+	public function __isset($key)
+	{
+		return array_key_exists($key, $this->_data);
+	}
+
+	/**
 	 * Manages accessing passed data as properties
 	 *
 	 * @param string   $key Property name
@@ -108,6 +119,7 @@ class View
 	 */
 	public function render()
 	{
+		$helper = $this->helper;	
 		extract($this->helper->get_aliases());
 		extract($this->_data);
 		ob_start();

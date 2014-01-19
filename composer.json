@@ -13,7 +13,8 @@
 		"phpixie/email": "2.*@dev",
 		"phpixie/image": "2.*@dev",
 		"phpixie/validate": "2.*@dev",
-		"phpixie/auth": "2.*@dev"
+		"phpixie/auth": "2.*@dev",
+		"phpixie/cache":"2.*@dev"
     	},
 	"extra": {
 		"branch-alias": {
