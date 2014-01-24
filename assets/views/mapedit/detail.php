@@ -24,7 +24,7 @@
 			
 			?>
 		</select></p>
-		<p>Location Name: <input type="text" name="LocationName" maxlength="45" value="<?php if($selected->loaded()) echo $selected->LocationName; ?>"/></p>
+		<p>Location Name: <input type="text" name="LocationName" maxlength="45" style="width:30%" value="<?php if($selected->loaded()) echo $selected->LocationName; ?>"/></p>
 		<p>Use default description? <input type="checkbox" name="UseDefaultDesc" value="1" <?php if(!$selected->loaded() || $selected->Description == null) echo 'checked="checked"'; ?> /></p>
 		<p>Custom description:<br/>
 		<textarea id="Description" name="Description" maxlength="255" style="width:90%;"><?php if($selected->loaded()) echo $selected->Description; ?></textarea></p>
