@@ -1,6 +1,6 @@
 <?php 
 namespace App\Controller;
-class MapEditor extends \App\Page{
+class Mapeditor extends \App\Page{
 
 	public function before() {
 	
