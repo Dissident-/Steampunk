@@ -13,16 +13,16 @@ class Helper extends \PHPixie\View\Helper{
 	'_validate' => 'validate'
     );
 	
-    public function link($url, $text, $classes = '', $dest = '#page_content') {
-		echo '<a class="'.$classes.'" href="'.$url.'" rel="'.$dest.'">';
+    public function link($url, $text, $classes = '', $dest = '#page_content', $style = null) {
+		echo '<a class="'.$classes.'" href="'.$url.'" rel="'.$dest.'"'.(isset($style) ? ' style="'.$style.'"' : '').'>';
 		echo $this->output($text);
 		echo '</a>';
     }
 	
-	public function input($name, $text) {
+	public function input($name, $text, $type = 'text') {
 		echo '<input name="'.$name.'" id="input_'.$name.'" value="';
 		echo $this->output($text);
-		echo '" />';
+		echo '" type="'.$type.'" />';
     }
 	
 	public function submit($name = 'Submit', $class = "button") {

@@ -93,7 +93,7 @@ class Game extends \App\Page{
 			$character = $this->view->character;
 			$this->view->activitylog = $this->view->character->ActivityLog->order_by('Timestamp','DESC')->limit(25)->find_all()->as_array();
 			$this->view->inventory = $this->pixie->orm->get('ItemInstance')->with('Type.Category')->where('CharacterID', $this->view->character->CharacterID)->find_all()->as_array();
-			if($this->view->character->HitPoints > 0) $this->view->map = $this->pixie->orm->get('Location')->with('Type')->where('CoordinateX', '>', $character->Location->CoordinateX - 3)->where('CoordinateX', '<', $character->Location->CoordinateX + 3)->where('CoordinateY', '>', $character->Location->CoordinateY - 3)->where('CoordinateX', '<', $character->Location->CoordinateY + 3)->where('PlaneID', '=', $character->Location->PlaneID)->where('CoordinateZ', $character->Location->CoordinateZ)->order_by('CoordinateY','asc')->order_by('CoordinateX','asc')->find_all()->as_array();
+			if($this->view->character->HitPoints > 0) $this->view->map = $this->pixie->orm->get('Location')->with('Type')->where('CoordinateX', '>', $character->Location->CoordinateX - 3)->where('CoordinateX', '<', $character->Location->CoordinateX + 3)->where('CoordinateY', '>', $character->Location->CoordinateY - 3)->where('CoordinateY', '<', $character->Location->CoordinateY + 3)->where('PlaneID', '=', $character->Location->PlaneID)->where('CoordinateZ', $character->Location->CoordinateZ)->order_by('CoordinateY','asc')->order_by('CoordinateX','asc')->find_all()->as_array();
 		}
 		parent::after();
 	}

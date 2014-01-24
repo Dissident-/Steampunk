@@ -727,5 +727,5 @@ function restorePanels()
 		return;
 	}
 	if(localStorage['right_panel'] != null && localStorage['right_panel'] != 'null') $( "#right_panel" ).tabs( "option", "active" ,parseInt(localStorage['right_panel']) );
-	if(localStorage['inventory_accordion'] != null && localStorage['inventory_accordion'] != 'null') $( "#inventory_accordion" ).accordion({heightStyle: "content", active: parseInt(localStorage['inventory_accordion'])}); else $( "#inventory_accordion" ).accordion({heightStyle: "content"});
+	if(localStorage['inventory_accordion'] != null && localStorage['inventory_accordion'] != 'null') $( "#inventory_accordion" ).accordion({collapsible: true, heightStyle: "content", active: parseInt(localStorage['inventory_accordion'])}); else $( "#inventory_accordion" ).accordion({collapsible: true, heightStyle: "content"});
 }

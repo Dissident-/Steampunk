@@ -6,6 +6,7 @@
 					if($has_role['Admin'])
 					{
 						echo '<div class="ui-corner-all" style="margin:2px;padding:2px;display:inline-block;border:1px solid black;background-color:lightyellow">Admin: ';
+						$_link('/mapeditor', 'Map', 'button');
 						$_link('/admin/tiletype', 'Tiles', 'button');
 						$_link('/admin/itemtype', 'Items', 'button');
 						$_link('/admin/itemcategory', 'Item Groups', 'button');
