@@ -72,10 +72,9 @@
 			$_form();
 			echo '</div>';
 		} ?>
-		</div>
 	</div>
-
 </div>
+
 <?php /* OH GOD MORE INLINE STYLES */ ?>
 <div class="padding-10" style="position:absolute;width:375px;height:100%;right:10px;margin-top:15px">
 	<div id="right_panel">
