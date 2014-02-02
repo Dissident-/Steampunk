@@ -27,5 +27,18 @@ Attribution
 =======
 (yes this will be added to a credits page on the site)
 
-Monochrome Icons by the fine folks at http://game-icons.net/
-Colour Icons by Ails http://ails.deviantart.com/art/420-Pixel-Art-Icons-for-RPG-129892453
+**Artwork**
+
+* Monochrome Icons by the fine folks at http://game-icons.net/
+* Colour Icons by Ails http://ails.deviantart.com/art/420-Pixel-Art-Icons-for-RPG-129892453
+
+**Code and mechanics**
+
+For the developers and crazy thinkers see the Github contributors page and issue discussions.
+
+**Libraries and Frameworks**
+
+* PHPixie
+* JQuery
+* JQuery UI
+* JTables
