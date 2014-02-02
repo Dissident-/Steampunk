@@ -14,7 +14,8 @@ class Pixie extends \PHPixie\Pixie {
 		'db' => '\PHPixie\DB',
 		'orm' => '\PHPixie\ORM',
 		'auth' => '\PHPixie\Auth',
-		'validate' => '\PHPixie\Validate'
+		'validate' => '\PHPixie\Validate',
+		'email' => '\PHPixie\Email'
 	);
 	
 	protected function after_bootstrap(){
