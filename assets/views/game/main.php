@@ -1,13 +1,12 @@
-<div><div class="ui-corner-left ui-widget-content padding-10" style="float:left"><?php echo $character->CharName; ?></div><div style="float:left" class="ui-state-error padding-10"><?php echo $character->HitPoints ?>HP</div><div style="float:left" class="ui-state-highlight padding-10"><?php echo $character->ActionPoints ?>AP</div><div style="float:left" class="ui-corner-right ui-widget-content padding-10"><?php echo $character->Experience ?>XP</div>
-<?php
+<div><div class="ui-corner-left ui-widget-content padding-10" style="float:left"><?php echo $character->CharName; ?></div><div style="float:left" class="ui-state-error padding-10"><?php echo $character->HitPoints ?>HP</div><div style="float:left" class="ui-state-highlight padding-10"><?php echo $character->ActionPoints ?>AP</div><div style="float:left" class="ui-widget-content padding-10"><?php echo $character->Experience ?>XP</div><div style="float:left;border-left:none;" class="ui-widget-content padding-10">Lv<?php echo $character->Level ?></div><div style="float:left;border-left:none;" class="ui-corner-right ui-widget-content padding-10"><?php echo $character->SkillPoints ?>SP</div>
+<div class="clear-left" style="padding-top:10px;display:block;min-height:39px;"><?php
 	// Yellow and red messages that slide in right of character details
-	echo '<div id="game_minor_actions" style="float:left;margin-left:10px" class="padding-10 ui-state-highlight ui-corner-all'.( $action == '' ? ' ui-helper-hidden' : '' ).'">';
+	echo '<div id="game_minor_actions" class="padding-10 ui-state-highlight ui-corner-all'.( $action == '' ? ' ui-helper-hidden' : '' ).'">';
 	if($action != '') echo $action;
-	echo '</div><div id="game_warnings" style="float:left;margin-left:10px" class="padding-10 ui-state-error ui-corner-all'.( $warnings == '' ? ' ui-helper-hidden' : '' ).'">';
+	echo '</div><div id="game_warnings" class="padding-10 ui-state-error ui-corner-all'.( $warnings == '' ? ' ui-helper-hidden' : '' ).'">';
 	if($warnings != '') echo $warnings;
 	echo '</div>';
-	
-?><div class="clear-left"></div>
+?></div><div class="clear-left"></div>
 </div>
 <?php /* Inline styles, aren't I terribad? */  ?>
 <div class="padding-10" style="position:absolute;height:100%;left:10px;right:405px;">

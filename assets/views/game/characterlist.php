@@ -41,6 +41,14 @@ $('#CharacterListContainer').jtable({
 					title: 'XP',
 					width:'2%'
 				},
+				Level:{
+					title: 'Level',
+					width:'2%'
+				},
+				SkillPoints:{
+					title: 'SP',
+					width:'2%'
+				},
 				Location:{
 					title: 'Location',
 					width:'20%'
@@ -59,7 +67,7 @@ foreach($characters as $char)
 	animationsEnabled: false,
 	record:';
 	
-	echo json_encode(array('CharacterID' => $char->CharacterID, 'CharName' => $char->CharName, 'HitPoints' => $char->HitPoints, 'ActionPoints' => $char->ActionPoints, 'Experience' => $char->Experience, 'Location' => ($char->LocationID == null ? 'The Void' : $char->Location->LocationName.' ('.$char->Location->CoordinateX.', '.$char->Location->CoordinateY.', '.$char->Location->Plane->PlaneName.')')));
+	echo json_encode(array('CharacterID' => $char->CharacterID, 'CharName' => $char->CharName, 'HitPoints' => $char->HitPoints, 'ActionPoints' => $char->ActionPoints, 'Experience' => $char->Experience, 'Level' => $char->Level, 'SkillPoints' => $char->SkillPoints, 'Location' => ($char->LocationID == null ? 'The Void' : $char->Location->LocationName.' ('.$char->Location->CoordinateX.', '.$char->Location->CoordinateY.', '.$char->Location->Plane->PlaneName.')')));
 
 	echo '});';
 }

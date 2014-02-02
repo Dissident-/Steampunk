@@ -186,3 +186,41 @@ a:hover
 {
 	position:relative;
 }
+
+
+.log-attack-hit, .log-defend-hit
+{
+}
+.log-defend-miss, .log-defend-hit
+{
+	color:red;
+}
+.log-defend-hit
+{
+	font-weight:bold;
+}
+.log-died
+{
+	color:red;
+	font-weight:bold;
+	text-decoration:underline;
+}
+.log-player-kill
+{
+	font-weight:bold;
+}
+.log-levelup
+{
+	
+}
+.log-respawn
+{
+}
+.log-levelup-self
+{
+	color:green;
+	font-weight:bold;
+}
+
+
+
