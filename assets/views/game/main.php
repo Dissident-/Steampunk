@@ -71,6 +71,18 @@
 			$_form();
 			echo '</div>';
 		} ?>
+		
+		<div>
+			<?php
+				
+				foreach($activated_skills as $skill)
+				{
+					$_link('/game/'.$character->CharacterID.'/activate/'.$skill->SkillID, $skill->SkillName, 'button margin-10', 'no_ajax' );
+				}
+			?>
+		</div>
+		<div style="display:block"></div>
+		
 	</div>
 </div>
 

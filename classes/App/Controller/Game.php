@@ -94,6 +94,7 @@ class Game extends \App\Page{
 			$this->view->activitylog = $this->view->character->ActivityLog->order_by('Timestamp','DESC')->limit(25)->find_all()->as_array();
 			$this->view->inventory = $this->pixie->orm->get('ItemInstance')->with('Type.Category')->where('CharacterID', $this->view->character->CharacterID)->find_all()->as_array();
 			if($this->view->character->HitPoints > 0) $this->view->map = $this->pixie->orm->get('Location')->with('Type')->where('CoordinateX', '>', $character->Location->CoordinateX - 3)->where('CoordinateX', '<', $character->Location->CoordinateX + 3)->where('CoordinateY', '>', $character->Location->CoordinateY - 3)->where('CoordinateY', '<', $character->Location->CoordinateY + 3)->where('PlaneID', '=', $character->Location->PlaneID)->where('CoordinateZ', $character->Location->CoordinateZ)->order_by('CoordinateY','asc')->order_by('CoordinateX','asc')->find_all()->as_array();
+			$this->view->activated_skills = $this->pixie->db->query('select')->table('skill')->join('skill_instance', array('skill.SkillID', 'skill_instance.SkillID'),'inner')->join('skill_usage', array('skill.SkillID', 'skill_usage.SkillID'),'inner')->join('usage', array('skill_usage.SkillUsageID', 'usage.UsageID'),'inner')->where('usage.UsageName', 'activated')->where('skill_instance.CharacterID', $character->CharacterID)->execute()->as_array();
 		}
 		parent::after();
 	}
@@ -398,7 +399,7 @@ class Game extends \App\Page{
 			return;
 		}
 		$char =& $this->view->character;
-		$skill = $this->pixie->db->query('select')->table('skill')->join('skill_instance', array('skill.SkillID', 'skill_instance.SkillID'),'inner')->join('skill_usage', array('skill.SkillID', 'skill_usage.SkillUsageID'),'inner')->join('usage', array('skill_usage.SkillUsageID', 'usage.UsageID'),'inner')->where('skill_instance.SkillID', $this->request->param('arg1'))->where('skill_instance.CharacterID', $char->CharacterID)->execute()->as_array();
+		$skill = $this->pixie->db->query('select')->table('skill')->join('skill_instance', array('skill.SkillID', 'skill_instance.SkillID'),'inner')->join('skill_usage', array('skill.SkillID', 'skill_usage.SkillID'),'inner')->join('usage', array('skill_usage.SkillUsageID', 'usage.UsageID'),'inner')->where('skill_instance.SkillID', $this->request->param('arg1'))->where('skill_instance.CharacterID', $char->CharacterID)->execute()->as_array();
 		if(count($skill) != 1)
 		{
 			$this->view->warnings = 'You can\'t use that skill!';
