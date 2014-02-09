@@ -516,6 +516,7 @@ class Game extends \App\Page{
 		$this->pixie->db->get()->execute("COMMIT");
 		if($char->HitPoints <= 0)
 		{
+			$char->Kill(false);
 			$this->response->body = $this->redirect('/game/'.$this->request->param('CharacterID'));
 			$this->execute = false;
 		}
