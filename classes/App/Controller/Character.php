@@ -93,11 +93,11 @@ class Character extends \App\Page{
 			$this->pixie->db->query('update')->table('activity_log')->data(array('CharacterID' => null))->where('CharacterID', $character->CharacterID)->execute();
 			$this->pixie->db->query('update')->table('status_effect_instance')->data(array('OriginatingCharacterID' => null))->where('OriginatingCharacterID', $character->CharacterID)->execute();
 			$this->pixie->db->query('delete')->table('status_effect_instance')->where('CharacterID', $character->CharacterID)->execute();
-			$this->pixie->db->query('delete')->table('item_usage_attribute')->join('item_instance', array('item_instance.ItemInstanceID', 'item_usage_attribute.ItemInstanceID'), 'inner')->where('item_instance.CharacterID', $character->CharacterID)->execute();
+			$this->pixie->db->query('delete')->table('special_item_attribute')->join('item_instance', array('item_instance.ItemInstanceID', 'special_item_attribute.ItemInstanceID'), 'inner')->where('item_instance.CharacterID', $character->CharacterID)->execute();
 			$this->pixie->db->query('delete')->table('item_instance')->where('CharacterID', $character->CharacterID)->execute();
 			// Great stuff, this query doens't want to work
 			//$this->pixie->db->query('delete')->table('character')->where('CharacterID', (int)$character->CharacterID)->execute();
-			// GODZOOKS THIS ISN'T ESCAPED they cry. It runs off the value from the database not the one people pass in, so it isn't quite as painfully hideous... just slightly lethal.
+			// GADZOOKS THIS ISN'T ESCAPED they cry. It runs off the value from the database not the one people pass in, so it isn't quite as painfully hideous... just slightly lethal.
 			$this->pixie->db->get()->execute('DELETE FROM `character` WHERE `character`.`CharacterID` = '.((int)$character->CharacterID).';');
 			$this->pixie->db->get()->execute("COMMIT");
 			
@@ -113,6 +113,7 @@ class Character extends \App\Page{
 	{
 		$this->view->subview = 'game/character';
 		$this->view->character = $this->pixie->orm->get('Character')->where('CharacterID', $this->request->param('CharacterID'))->find();
+		$this->view->skills = $this->pixie->db->query('select')->table('skill')->join('skill_instance', array('skill.SkillID', 'skill_instance.SkillID'))->where('skill_instance.CharacterID', $this->request->param('CharacterID'))->execute()->as_array();
 		if(!$this->view->character->loaded())
 		{
 			$this->execute = false;

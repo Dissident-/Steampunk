@@ -1,6 +1,6 @@
 <?php
 namespace App\Model;
-class Character extends \PHPixie\ORM\Model{
+class Skill extends \PHPixie\ORM\Model{
  
     //Specify the PRIMARY KEY
     public $id_field='SkillID';

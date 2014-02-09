@@ -10,6 +10,7 @@
 						$_link('/admin/tiletype', 'Tiles', 'button');
 						$_link('/admin/itemtype', 'Items', 'button');
 						$_link('/admin/itemcategory', 'Item Groups', 'button');
+						$_link('/admin/skill', 'Skills', 'button');
 						echo '</div>';
 					}
 				}

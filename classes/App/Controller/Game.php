@@ -108,7 +108,7 @@ class Game extends \App\Page{
 	{
 		$char = $this->view->character;
 		// Fetch dest tile
-		$loc = $this->pixie->orm->get('Location')->with('Plane')->where('LocationID', $this->request->param('arg1'))->find();
+		$loc = $this->pixie->orm->get('Location')->with('Plane')->with('Type')->where('LocationID', $this->request->param('arg1'))->find();
 		
 		if(!$loc->loaded()) // Hah, good try
 		{
@@ -128,8 +128,14 @@ class Game extends \App\Page{
 				$this->view->warnings = 'You\'re already here.';
 				return;
 			}
+			
+			if($loc->Type->Traversible == 'Never' || $loc->Type->Traversible == 'WithAttribute') // Nope.jpg TODO: Check for attribute
+			{
+				$this->view->warnings = 'You can\'t move there!';
+				return;
+			}
 		
-			if(!$char->SpendAP(1)) // Need those sweet sweet APs
+			if(!$char->SpendAP($loc->Type->APCost)) // Need those sweet sweet APs
 			{
 				$this->view->warnings = 'You are too tired to move.';
 				return;
@@ -382,5 +388,172 @@ class Game extends \App\Page{
 		$this->view->character = $this->pixie->orm->get('Character')->with('Location.Plane')->where('AccountID', $this->pixie->auth->user()->AccountID)->where('CharacterID', $this->request->param('CharacterID'))->find();
 		$this->view->map = $this->pixie->orm->get('Location')->with('Type')->where('CoordinateX', '>', $this->view->character->Location->CoordinateX - 3)->where('CoordinateX', '<', $this->view->character->Location->CoordinateX + 3)->where('CoordinateY', '>', $this->view->character->Location->CoordinateY - 3)->where('CoordinateX', '<', $this->view->character->Location->CoordinateY + 3)->where('PlaneID', '=', $this->view->character->Location->PlaneID)->where('CoordinateZ', $this->view->character->Location->CoordinateZ)->order_by('CoordinateY','asc')->order_by('CoordinateX','asc')->find_all()->as_array();
 		$this->view->action = 'You have respawned.';
+	}
+	
+	public function action_activate()
+	{
+		if(!$this->request->param('arg1'))
+		{
+			$this->view->warnings = 'You can\'t use that!';
+			return;
+		}
+		$char =& $this->view->character;
+		$skill = $this->pixie->db->query('select')->table('skill')->join('skill_instance', array('skill.SkillID', 'skill_instance.SkillID'),'inner')->join('skill_usage', array('skill.SkillID', 'skill_usage.SkillUsageID'),'inner')->join('usage', array('skill_usage.SkillUsageID', 'usage.UsageID'),'inner')->where('skill_instance.SkillID', $this->request->param('arg1'))->where('skill_instance.CharacterID', $char->CharacterID)->execute()->as_array();
+		if(count($skill) != 1)
+		{
+			$this->view->warnings = 'You can\'t use that skill!';
+			return;
+		}
+
+		$skill = $skill[0];
+			
+		$effects = $this->pixie->db->query('select')->table('skill_effect')->join('usage', array('skill_effect.SkillUsageID', 'usage.UsageID'),'inner')->where('skill_effect.SkillID', $this->request->param('arg1'))->where('usage.UsageName', 'activated')->execute()->as_array();
+		
+		// Pass 1 - Determine if we meet all the requirements to activate this skill
+		
+		foreach($effects as $effect)
+		{
+			switch($effect->AttributeName)
+			{
+				case 'APCost':
+				{
+					if($char->ActionPoints < $effect->AttributeValue)
+					{
+						$this->view->warnings = 'You need '.$effect->AttributeValue.'AP to do that!';
+						return;
+					}
+					break;
+				}
+				default:
+				{
+					break;
+				}
+			}
+		}
+		
+		$setplayer_whitelist = array('ActionPoints', 'HitPoints', 'SkillPoints', 'Experience', 'LocationID');
+		
+		$oldlocation = $char->LocationID;
+		
+		$this->pixie->db->get()->execute("START TRANSACTION");
+		foreach($effects as $effect)
+		{
+			switch($effect->AttributeName)
+			{
+				case 'SpendAP':
+				{
+					if($char->ActionPoints < $effect->AttributeValue)
+					{
+						$char->ActionPoints = $char->ActionPoints - $effect->AttributeValue;
+					}
+					break;
+				}
+				case 'SetSelf':
+				{
+					$tar = $effect->AttributeType;
+					if(in_array($tar, $setplayer_whitelist)) $char->$tar = $effect->AttributeValue;
+					if($tar == 'HitPoints' && $effect->AttributeValue <= 0) $checkdeaths = true;
+					break;
+				}			
+				case 'AlterSelf':
+				{
+					$tar = $effect->AttributeType;
+					if(in_array($tar, $setplayer_whitelist)) $char->$tar = $char->$tar + $effect->AttributeValue;
+					if($tar == 'HitPoints' && $effect->AttributeValue < 0) $checkdeaths = true;
+					break;
+				}	
+				case 'AlterAdjacent':
+				{
+					$tar = $effect->AttributeType;
+					if(in_array($tar, $setplayer_whitelist)) $this->pixie->db->query('update')->table('character')->data(array($tar => $this->pixie->db->expr('`'.$tar.'`'.($effect->AttributeValue >= 0 ? ' + '.intval($effect->AttributeValue) : ' - '.(0 - intval($effect->AttributeValue))))))->where('LocationID', $char->LocationID)->where('CharacterID', '<>' , $char->CharacterID)->execute();
+					if($tar == 'HitPoints' && $effect->AttributeValue < 0)
+					{
+						$characters = $this->pixie->orm->get('Character')->where('LocationID', '=', $oldlocation)->where('HitPoints', '<=', 0)->find_all()->as_array();
+						foreach($characters as $character)
+						{
+							$character->Kill(true);
+						}
+					}
+					break;
+				}
+				case 'SetAdjacent':
+				{
+					$tar = $effect->AttributeType;
+					if(in_array($tar, $setplayer_whitelist)) if(in_array($tar, $setplayer_whitelist)) $this->pixie->db->query('update')->table('character')->data(array($tar => $effect->AttributeValue))->where('LocationID', $char->LocationID)->where('CharacterID', '<>' , $char->CharacterID)->execute();
+					if($tar == 'HitPoints' && $effect->AttributeValue <= 0)
+					{
+						$characters = $this->pixie->orm->get('Character')->where('LocationID', '=', $oldlocation)->where('HitPoints', '<=', 0)->find_all()->as_array();
+						foreach($characters as $character)
+						{
+							$character->Kill(true);
+						}
+					}
+					break;
+				}
+				case 'MessageCurrentTile':
+				{
+					$messageforall = $this->pixie->orm->get('ActivityLog');
+					$messageforall->CharacterID = $char->CharacterID;
+					$messageforall->Activity = '<span class="'.$effect->AttributeType.'">'.str_replace('%%PLAYER%%', $char->Link ,$effect->AttributeValue).'</span>';
+					$messageforall->Save();
+					$characters = $char->Location->Character->find_all()->as_array();
+					$actionreaderinserts = array();
+					foreach($characters as $loopchar)
+					{
+						$actionreaderinserts[] = array('CharacterID' => $loopchar->CharacterID, 'ActivityLogID' => $messageforall->ActivityLogID);
+					}
+					$this->pixie->db->query('insert')->table('activity_log_reader')->data($actionreaderinserts)->execute();
+					break;
+				}
+				default:
+				{
+					break;
+				}
+			}
+		}
+		$char->Save();
+		$this->pixie->db->get()->execute("COMMIT");
+		if($char->HitPoints <= 0)
+		{
+			$this->response->body = $this->redirect('/game/'.$this->request->param('CharacterID'));
+			$this->execute = false;
+		}
+	}
+	
+	public function action_skills()
+	{
+		$char =& $this->view->character;
+		if($this->request->param('arg1'))
+		{
+			$skill = $this->pixie->orm->get('Skill')->where('SkillID', $this->request->param('arg1'))->find();
+			$hasit_check = $this->pixie->db->query('select')->table('skill_instance')->where('skill_instance.SkillID', $skill->SkillID)->where('skill_instance.CharacterID', $char->CharacterID)->execute()->as_array();
+			if(!$skill->Loaded())
+			{
+				$this->view->warnings = 'That skill doesn\'t exist!';
+			}
+			else if(count($hasit_check) > 0)
+			{
+				$this->view->warnings = 'You already know this skill...';
+			}
+			else if(!$char->SpendSP($skill->SkillBaseCost))
+			{
+				$this->view->warnings = 'You need more Skill Points to learn that skill!';
+			}
+			else
+			{
+				$this->pixie->db->query('insert')->table('skill_instance')->data(array('SkillID' => $skill->SkillID, 'CharacterID' => $char->CharacterID))->execute();
+				$this->view->action = 'You have learnt '.$skill->SkillName.'!';
+			}
+		}
+	
+		$this->view->subview = 'game/skills';
+		$this->view->skills = $this->pixie->db->query('select')->table('skill')->execute()->as_array();
+		$myskills = array();
+		$mine = $this->pixie->db->query('select')->table('skill_instance')->where('skill_instance.CharacterID', $this->request->param('CharacterID'))->execute()->as_array();
+		foreach($mine as $v)
+		{
+			$myskills[] = $v->SkillID;
+		}
+		$this->view->myskills = $myskills;
 	}
 }

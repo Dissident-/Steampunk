@@ -1,6 +1,6 @@
 <?php
 namespace App\Model;
-class ItemUsage extends \PHPixie\ORM\Model{
+class Usage extends \PHPixie\ORM\Model{
  
     //Specify the PRIMARY KEY
     public $id_field='UsageID';
@@ -12,7 +12,13 @@ class ItemUsage extends \PHPixie\ORM\Model{
     public $connection = 'default';
 	
 	protected $has_many=array(
- 		'ItemType'=>array(
+ 		'Skill'=>array(
+            'model'=>'Skill',
+			'through'=>'skill_usage',
+            'key'=>'ItemUsageID',
+			'foreign_key'=>'ItemTypeID'
+        ),
+		'Item'=>array(
             'model'=>'ItemType',
 			'through'=>'item_type_usage',
             'key'=>'ItemUsageID',

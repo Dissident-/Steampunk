@@ -8,5 +8,18 @@
 
 	<?php echo '<p>Level '.$character->Level.'</p>' ?>
 	
+	<?php
+		
+		foreach($skills as $skill)
+		{
+		
+			echo '<div class="ui-widget-content ui-corner-all margin-10 padding-10" style="display:inline-block">'.$skill->SkillName.'</div>';
+		}
+		
+	?>
+	<div style="display:block"></div>
+	
+	<?php if($isowner) $_link('/game/'.$character->CharacterID.'/skills', 'Learn Skills', 'button clear-left'); ?>
+	
 </div>
 </div>

@@ -1,21 +1,21 @@
-<div id="ItemTypeContainer"></div>
+<div id="SkillContainer"></div>
 
 <script type="text/javascript">
-$('#ItemTypeContainer').jtable({
-            title: 'Item Types',
+$('#SkillContainer').jtable({
+            title: 'Skills',
 			openChildAsAccordion: true,
             actions: {
-                listAction: '/admin/itemtype?action=list',
-                createAction: '/admin/itemtype?action=create',
-                updateAction: '/admin/itemtype?action=update',
-                deleteAction: '/admin/itemtype?action=delete'
+                listAction: '/admin/skill?action=list',
+                createAction: '/admin/skill?action=create',
+                updateAction: '/admin/skill?action=update',
+                deleteAction: '/admin/skill?action=delete'
             },
 			paging: false,
 			pageSize: 10,
 			sorting: false,
-			defaultSorting: 'ItemTypeName ASC',
+			defaultSorting: 'SkillName ASC',
             fields: {
-                ItemTypeID: {
+                SkillID: {
                     key: true,
                     list: false
                 },
@@ -27,21 +27,21 @@ $('#ItemTypeContainer').jtable({
 					edit: false,
 					create: false,
 					display: function (table) {
-						var $img = $('<img src="/ails/icon_90.png" title="Usage" />');
+						var $img = $('<img src="/ails/icon_90.png" title="Effects" />');
 						$img.click(function () {
 						
-							$('#ItemTypeContainer').jtable('openChildTable',
+							$('#SkillContainer').jtable('openChildTable',
 									$img.closest('tr'),
 									{
 										paging: false, //Enable paging
 										pageSize: 10, //Set page size (default: 10)
 										sorting: false, //Enable sorting
 										defaultSorting: 'Title ASC', //Set default sorting
-										title: 'Item Usage',
+										title: 'Skill Usage',
 										actions: {
-											listAction: '/admin/itemusage?action=list&ItemTypeID=' + table.record.ItemTypeID,
-											createAction: '/admin/itemusage?action=create&ItemTypeID=' + table.record.ItemTypeID,
-											deleteAction: '/admin/itemusage?action=delete&ItemTypeID=' + table.record.ItemTypeID
+											listAction: '/admin/skillusage?action=list&SkillID=' + table.record.SkillID,
+											createAction: '/admin/skillusage?action=create&SkillID=' + table.record.SkillID,
+											deleteAction: '/admin/skillusage?action=delete&SkillID=' + table.record.SkillID
 										},
 										fields: {
 													Usage:
@@ -56,10 +56,10 @@ $('#ItemTypeContainer').jtable({
 															$img.click(function () {
 																
 																actions = {
-																	createAction: '/admin/itemusageattribute?action=create&ItemTypeID=' + table.record.ItemTypeID + '&ItemUsageID=' + table2.record.ItemUsageID,
-																	listAction: '/admin/itemusageattribute?action=list&ItemTypeID=' + table.record.ItemTypeID + '&ItemUsageID=' + table2.record.ItemUsageID,
-																	updateAction: '/admin/itemusageattribute?action=update&ItemTypeID=' + table.record.ItemTypeID + '&ItemUsageID=' + table2.record.ItemUsageID,
-																	deleteAction: '/admin/itemusageattribute?action=delete&ItemTypeID=' + table.record.ItemTypeID + '&ItemUsageID=' + table2.record.ItemUsageID
+																	createAction: '/admin/skilleffect?action=create&SkillID=' + table.record.SkillID + '&SkillUsageID=' + table2.record.SkillUsageID,
+																	listAction: '/admin/skilleffect?action=list&SkillID=' + table.record.SkillID + '&SkillUsageID=' + table2.record.SkillUsageID,
+																	updateAction: '/admin/skilleffect?action=update&SkillID=' + table.record.SkillID + '&SkillUsageID=' + table2.record.SkillUsageID,
+																	deleteAction: '/admin/skilleffect?action=delete&SkillID=' + table.record.SkillID + '&SkillUsageID=' + table2.record.SkillUsageID
 																};
 																if(table2.record.UsageName == 'armour')
 																{
@@ -68,7 +68,7 @@ $('#ItemTypeContainer').jtable({
 																							list: true,
 																							create: true,
 																							edit: true,
-																							options: '/admin/options?action=types&ItemTypeID=' + table.record.ItemTypeID + '&ItemUsageID=' + table2.record.ItemUsageID
+																							options: '/admin/options?action=types&SkillUsageID=' + table2.record.SkillUsageID
 																						};
 																}
 																else if(table2.record.UsageName == 'weaponbuff')
@@ -78,8 +78,18 @@ $('#ItemTypeContainer').jtable({
 																							list: true,
 																							create: true,
 																							edit: true,
-																							options: '/admin/options?action=types&ItemTypeID=' + table.record.ItemTypeID + '&ItemUsageID=' + table2.record.ItemUsageID
+																							options: '/admin/options?action=types&SkillUsageID=' + table2.record.SkillUsageID
 																						};																	
+																}
+																else if(table2.record.UsageName == 'activated')
+																{
+																		attrtype = {
+																					title: 'Type',
+																					list:  true,
+																					create:  true,
+																					edit:  true,
+																					defaultValue: ''
+																				};
 																}
 																else
 																{
@@ -92,40 +102,40 @@ $('#ItemTypeContainer').jtable({
 																					defaultValue: ''
 																				};
 																}
-																$('#ItemTypeContainer').jtable('openChildTable',
+																$('#SkillContainer').jtable('openChildTable',
 																		$img.closest('tr'),
 																		{
 																			paging: false, //Enable paging
 																			pageSize: 10, //Set page size (default: 10)
 																			sorting: false, //Enable sorting
 																			defaultSorting: 'Title ASC', //Set default sorting
-																			title: 'Item Properties',
+																			title: 'Skill Effects',
 																			actions: actions,
 																			fields: {
-																						ItemUsageAttributeID:
+																						SkillEffectID:
 																						{
 																							key:true,
 																							list: false
 																						},
-																						ItemUsageID:
+																						SkillUsageID:
 																						{
 																							list: false,
 																							edit: false,
 																							create: false,
-																							defaultValue: table2.record.ItemUsageID
+																							defaultValue: table2.record.SkillUsageID
 																						},
-																						ItemTypeID:
+																						SkillID:
 																						{
 																							list: false,
 																							edit: false,
 																							create: false,
-																							defaultValue: table.record.ItemTypeID
+																							defaultValue: table.record.SkillID
 																						},
 																						AttributeName:
 																						{
 																							title: 'Property',
 																							edit: true,
-																							options: '/admin/options?action=attributes&ItemTypeID=' + table.record.ItemTypeID + '&ItemUsageID=' + table2.record.ItemUsageID,
+																							options: '/admin/options?action=attributes&SkillUsageID=' + table2.record.SkillUsageID,
 																						},
 																						AttributeType: attrtype,
 																						AttributeValue:
@@ -140,7 +150,7 @@ $('#ItemTypeContainer').jtable({
 															return $img;
 														}
 													},
-													ItemUsageID:
+													SkillUsageID:
 													{
 														key:true,
 														list:true,
@@ -158,17 +168,13 @@ $('#ItemTypeContainer').jtable({
 						return $img;
 					}
 				},
-				ItemTypeName:
+				SkillName:
 				{
-					title: 'Item Name'
+					title: 'Skill Name'
 				},
-				ItemCategoryID:{
-					title: 'Category Name',
-					options: '/admin/options?action=categories',
-				},
-				BaseWeight:
+				SkillBaseCost:
 				{
-					title: 'Weight'
+					title: 'Skill Points'
 				},
 				Icon:
 				{
@@ -179,5 +185,5 @@ $('#ItemTypeContainer').jtable({
 				}
 			}
 });
-$('#ItemTypeContainer').jtable('load');
+$('#SkillContainer').jtable('load');
 </script>

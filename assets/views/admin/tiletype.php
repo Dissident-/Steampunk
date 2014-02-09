@@ -72,6 +72,19 @@ $('#TileTypeContainer').jtable({
 				TypeName:{
 					title: 'Type Name'
 				},
+				APCost:
+				{
+					title: 'AP Cost',
+					list: false,
+					defaultValue: 1
+				},
+				Traversible:
+				{
+					title: 'Traversible',
+					list: false,
+					options: {'Always' : 'Always', 'WithAttribute' : 'Requires Attribute', 'WithoutAttribute' : 'Cannot Have Attribute', 'Never' : 'Never'},
+					defaultValue: 'Always'
+				},
 				Colour:
 				{
 					title: 'Colour',

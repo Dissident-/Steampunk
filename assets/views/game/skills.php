@@ -10,67 +10,33 @@
 </div>
 <?php /* Inline styles, aren't I terribad? */  ?>
 <div class="padding-10" style="position:absolute;height:100%;left:10px;right:405px;">
-	<h3 class="ui-corner-top ui-widget-header">Details</h3>
-	<div class="ui-corner-bottom ui-widget-content">
+	<h3 class="ui-corner-top ui-widget-header">Skills</h3>
+	<div class="ui-corner-bottom ui-widget-content padding-10">
 	
-		<div id="activity_log" class="ui-corner-all ui-widget-content margin-10" style="overflow:auto;height:100px">
+	<?php
+		$_link('/game/'.$character->CharacterID, 'Return to Game', 'button');
 		
-			<ul class="list-plain">
-				<?php
-				foreach($activitylog as $log)
-				{
-					echo '<li>'.$log->Timestamp.' '.$log->Activity.'</li>';
-				}
-				?>
-			</ul>
-			
-		</div>
-		<div class="padding-10">
-			<?php
-			$_form('/game/'.$character->CharacterID.'/speak', 'speechform');
-			echo '<input type="text" name="speech" value="" style="margin-right:1%;display:inline;width:80%;" />' ;
-			$_submit('Speak');
-			$_form();
-			?>
-		</div>
-	
-		<p><b><?php echo $character->Location->LocationName.', '.$character->Location->Type->TypeName.' ('.$character->Location->CoordinateX.', '.$character->Location->CoordinateY.', '.$character->Location->Plane->PlaneName.')'; ?></b></p>
-		<p><?php echo $character->Location->Description !== null ? $character->Location->Description : $character->Location->Type->DefaultDescription ?></p>
-		<?php $others = $character->Location->Character->where('CharacterID', '<>', $character->CharacterID)->order_by('CharName', 'ASC')->find_all()->as_array();
-		if(count($others) > 0)
-		{ ?>
-		<p>You can see <?php if(count($others) == 1) echo '1 other person'; else echo count($others).' other people'; ?> at this location:</p>
-		<ul>
-		<?php // Sort these alphabetically and provide profile URLs?
-			foreach($others as $person)
-			{
-				echo '<li>'.$person->CharName.'</li>';
-			}
-		?>
-		</ul>
-		<?php } ?>
-		<?php $_link('/game/'.$character->CharacterID.'/search', 'Search', 'button margin-10', '#page_content nohash' );
+	?>
+		<p>Click on a skill to learn it. (TODO: Describe the skills, for now they are mysteries!)</p>
+	<?php
 		
-		if(count($others) > 0 && count($character->Weaponry) > 0)
+		foreach($skills as $skill)
 		{
-			echo '<div class="padding-10">';
-			$_form('/game/'.$character->CharacterID.'/attack', 'attackform');
+			if(in_array($skill->SkillID, $myskills)) $has_skill = true; else $has_skill = false;
 			
-			$_submit('Attack');
-			echo ' <select name="CharacterID" style="display:inline;">';
-			foreach($others as $person)
+			if($has_skill)
 			{
-				echo '<option value="'.$person->CharacterID.'"'.(isset($selectedchar) && $person->CharacterID == $selectedchar ? ' selected' : '').'>'.$person->CharName.'</option>';
+				echo '<div class="ui-widget-content  ui-corner-all margin-10 padding-10" style="display:inline-block">'.$skill->SkillName.'</div>';
 			}
-			echo '</select> with a <select name="ItemInstanceID">';
-			foreach($character->Weaponry as $weapon)
+			else
 			{
-				echo '<option class="item-'.$weapon->ItemInstanceID.'" '.(isset($selectedweapon) && $weapon->ItemInstanceID == $selectedweapon ? ' selected' : '').' value="'.$weapon->ItemInstanceID.'">'.$weapon->ItemTypeName.' ('.$weapon->Damage.' '.$weapon->DamageType.' @ '.$weapon->HitChance.'%)</option>';
+				$_link('/game/'.$character->CharacterID.'/skills/'.$skill->SkillID, $skill->SkillName.' ('.$skill->SkillBaseCost.'SP)', 'button');
 			}
-			echo '</select>';
-			$_form();
-			echo '</div>';
-		} ?>
+			
+		}
+		
+	?>
+	
 	</div>
 </div>
 
