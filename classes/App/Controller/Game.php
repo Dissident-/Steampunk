@@ -441,12 +441,9 @@ class Game extends \App\Page{
 		{
 			switch($effect->AttributeName)
 			{
-				case 'SpendAP':
+				case 'APCost':
 				{
-					if($char->ActionPoints < $effect->AttributeValue)
-					{
-						$char->ActionPoints = $char->ActionPoints - $effect->AttributeValue;
-					}
+					$char->ActionPoints = $char->ActionPoints - $effect->AttributeValue;
 					break;
 				}
 				case 'SetSelf':
