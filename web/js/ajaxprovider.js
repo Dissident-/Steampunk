@@ -160,7 +160,7 @@ $(document).ready(function(){
 	
 	$(document).ajaxError(function(event, jqXHR, ajaxSettings, thrownError) {
 		$('#ajax_error').attr('title', thrownError);
-		$('#ajax_error').html('Error D:');
+		$('#ajax_error').html(jqXHR.responseText);
 		$('#ajax_error').dialog({ width: 800, height: 600,  show: {effect: "fade",duration: 500},hide: {effect: "fade",duration: 500} });
 		$('#ajax_error').dialog('open');
 		$( "#ajax_error" ).effect( 'highlight', {}, 1000 );
