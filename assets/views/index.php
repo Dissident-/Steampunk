@@ -10,7 +10,7 @@
 	<script src="/js/jquery-1.8.2.min.js" type="text/javascript"></script>
 	<script src="/js/jquery.ba-bbq.min.js" type="text/javascript"></script>
 	<script src="/js/jquery-ui-1.10.3.custom.min.js" type="text/javascript"></script>
-	<script src="/js/ajaxprovider.js?2" type="text/javascript"></script>
+	<script src="/js/ajaxprovider.js?3" type="text/javascript"></script>
 	<script src="/js/jquery.jtable.min.js" type="text/javascript"></script>
 
 </head>
