@@ -541,6 +541,7 @@ class Game extends \App\Page{
 			else
 			{
 				$this->pixie->db->query('insert')->table('skill_instance')->data(array('SkillID' => $skill->SkillID, 'CharacterID' => $char->CharacterID))->execute();
+				$char->deltas(); // Save fact that SP was spent
 				$this->view->action = 'You have learnt '.$skill->SkillName.'!';
 			}
 		}
