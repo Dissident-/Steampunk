@@ -296,17 +296,21 @@ class Character extends \PHPixie\ORM\Model{
 		else if($property == 'Defenses')
 		{
 			// Base items
-			$def = $this->pixie->db->query('select')->table('item_instance')->fields($this->pixie->db->expr('MAX(CAST(`item_usage_attribute`.`AttributeValue` AS SIGNED)) AS \'Value\''), 'item_usage_attribute.AttributeName', 'item_usage_attribute.AttributeType')->join('item_type_usage', array('item_instance.ItemTypeID', 'item_type_usage.ItemTypeID'))->join('usage', array('item_type_usage.ItemUsageID', 'usage.UsageID'))->join('item_usage_attribute',array('item_instance.ItemTypeID', 'item_usage_attribute.ItemTypeID'),'left')->where('item_instance.CharacterID', $this->CharacterID)->where('usage.UsageName', $this->pixie->db->expr('\'armour\' AND (`item_usage_attribute`.`AttributeName` = \'Soak\' OR `item_usage_attribute`.`AttributeName` = \'Resist\')'))->group_by('item_usage_attribute.AttributeName', 'item_usage_attribute.AttributeType')->execute()->as_array();
-			// TODO	
+			$def1 = $this->pixie->db->query('select')->table('item_instance')->fields($this->pixie->db->expr('MAX(CAST(`item_usage_attribute`.`AttributeValue` AS SIGNED)) AS \'Value\''), 'item_usage_attribute.AttributeName', 'item_usage_attribute.AttributeType')->join('item_type_usage', array('item_instance.ItemTypeID', 'item_type_usage.ItemTypeID'))->join('usage', array('item_type_usage.ItemUsageID', 'usage.UsageID'))->join('item_usage_attribute',array('item_instance.ItemTypeID', 'item_usage_attribute.ItemTypeID'),'left')->where('item_instance.CharacterID', $this->CharacterID)->where('usage.UsageName', $this->pixie->db->expr('\'armour\' AND (`item_usage_attribute`.`AttributeName` = \'Soak\' OR `item_usage_attribute`.`AttributeName` = \'Resist\')'))->group_by('item_usage_attribute.AttributeName', 'item_usage_attribute.AttributeType')->execute()->as_array();
 			// Unique items
+			$def2 = $this->pixie->db->query('select')->table('item_instance')->fields($this->pixie->db->expr('MAX(CAST(`special_item_attribute`.`AttributeValue` AS SIGNED)) AS \'Value\''), 'special_item_attribute.AttributeName', 'special_item_attribute.AttributeType')->join('item_type_usage', array('item_instance.ItemTypeID', 'item_type_usage.ItemTypeID'))->join('usage', array('item_type_usage.ItemUsageID', 'usage.UsageID'))->join('special_item_attribute',array('item_instance.ItemTypeID', 'special_item_attribute.ItemInstanceID'),'left')->where('item_instance.CharacterID', $this->CharacterID)->where('usage.UsageName', $this->pixie->db->expr('\'armour\' AND (`special_item_attribute`.`AttributeName` = \'Soak\' OR `special_item_attribute`.`AttributeName` = \'Resist\')'))->group_by('special_item_attribute.AttributeName', 'special_item_attribute.AttributeType')->execute()->as_array();
 			// Skills
-			// Will probably need union
+			$def3 = $this->pixie->db->query('select')->table('skill_instance')->fields($this->pixie->db->expr('MAX(CAST(`skill_effect`.`AttributeValue` AS SIGNED)) AS \'Value\''), 'skill_effect.AttributeName', 'skill_effect.AttributeType')->join('skill_effect',array('skill_effect.SkillID', 'skill_instance.SkillID'))->join('skill_usage', array('skill_effect.SkillUsageID', 'skill_usage.SkillUsageID'), 'inner')->join('usage', array('skill_usage.SkillUsageID', 'usage.UsageID'), 'inner')->where('skill_instance.CharacterID', $this->CharacterID)->where('usage.UsageName', $this->pixie->db->expr('\'armour\' AND (`skill_effect`.`AttributeName` = \'Soak\' OR `skill_effect`.`AttributeName` = \'Resist\')'))->group_by('skill_effect.AttributeName', 'skill_effect.AttributeType')->execute()->as_array();
+
+			
+			$def = array_merge($def1, $def2, $def3);
+			
 			$defenses = array();
 			
 			foreach($def as $defstat)
 			{
 				if(!isset($defenses[$defstat->AttributeType])) $defenses[$defstat->AttributeType] = array('Soak' => 0, 'Resist' => 0);
-				$defenses[$defstat->AttributeType][$defstat->AttributeName] = $defstat->Value;
+				$defenses[$defstat->AttributeType][$defstat->AttributeName] = max($defenses[$defstat->AttributeType][$defstat->AttributeName], $defstat->Value);
 			}
 			
 			return $defenses;
