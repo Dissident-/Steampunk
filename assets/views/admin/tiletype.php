@@ -82,7 +82,7 @@ $('#TileTypeContainer').jtable({
 				{
 					title: 'Traversible',
 					list: false,
-					options: {'Always' : 'Always', 'WithAttribute' : 'Requires Attribute', 'WithoutAttribute' : 'Cannot Have Attribute', 'Never' : 'Never'},
+					options: <?php echo $traversaltypes; ?>,
 					defaultValue: 'Always'
 				},
 				Colour:
