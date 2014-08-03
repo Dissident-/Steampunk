@@ -64,7 +64,7 @@ class Character extends \PHPixie\ORM\Model{
 	
 	public function SpendSP($amount = 0)
 	{
-		if($this->SkillPoints > 0)
+		if($this->SkillPoints >= $amount)
 		{
 			$this->SkillPoints = $this->SkillPoints - $amount;
 			if(isset($this->deltas['SkillPoints'])) $this->deltas['SkillPoints'] = $this->deltas['SkillPoints'] - $amount; else $this->deltas['SkillPoints'] = 0 - $amount;
