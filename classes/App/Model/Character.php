@@ -161,6 +161,35 @@ class Character extends \PHPixie\ORM\Model{
 		$this->add('ActivityLog', $action);
 	}
 	
+	public function CanTraverse($loc)
+	{
+		if(is_numeric($loc))
+		{
+			$loc = $this->pixie->orm->get('Location')->with('Plane')->with('Type')->where('LocationID', $loc)->find();
+		}
+		
+		if(!$loc->loaded()) // Hah, good try
+		{
+			return false;
+		}
+		
+		if($loc->Type->Traversible == 'Never') // Nope.jpg
+		{
+			return false;
+		}
+		
+		$traverse = explode(" ", $loc->Type->Traversible, 2);
+		
+		if(count($traverse) == 2 && ($traverse[0] == 'WithAttribute' || $traverse[0] == 'WithoutAttribute'))
+		{
+			if(isset($this->CustomAttributes[$traverse[1]]) xor $traverse[0] == 'WithAttribute') // If either WithoutAttribute and they have it, or WithAttribute and they don't have it
+			{
+				return 'You can\'t move there!';
+			}
+		}
+		return true;
+	}
+	
 	public function get($property)
 	{
 		if($property == 'Link')

@@ -92,6 +92,27 @@ class Admin extends \App\Page{
 			default:
 			{
 				$this->view->subview = 'admin/tiletype';
+				
+				// Items
+				$attr1 = $this->pixie->db->query('select')->table('item_usage_attribute')->fields('usage.UsageName', 'item_usage_attribute.AttributeName', 'item_usage_attribute.AttributeType', 'item_usage_attribute.AttributeValue')->join('usage', array('item_usage_attribute.ItemUsageID', 'usage.UsageID'))->where('usage.UsageName', 'customattribute')->group_by('item_usage_attribute.AttributeName')->execute()->as_array();
+				// Unique Items
+				$attr2 = $this->pixie->db->query('select')->table('special_item_attribute')->fields('usage.UsageName', 'special_item_attribute.AttributeName', 'special_item_attribute.AttributeType', 'special_item_attribute.AttributeValue')->join('usage', array('special_item_attribute.ItemUsageID', 'usage.UsageID'))->where('usage.UsageName', 'customattribute')->group_by('special_item_attribute.AttributeName')->execute()->as_array();
+				// Skills
+				$attr3 = $this->pixie->db->query('select')->table('skill_effect')->fields('usage.UsageName', 'skill_effect.AttributeName', 'skill_effect.AttributeType', 'skill_effect.AttributeValue')->join('usage', array('skill_effect.SkillUsageID', 'usage.UsageID'), 'inner')->where('usage.UsageName', 'customattribute')->group_by('skill_effect.AttributeName')->execute()->as_array();
+				$attrs = array_merge($attr1, $attr2, $attr3);
+				$tags = array();
+			
+			
+				$tags['Always'] = 'Always';
+				$tags['Never'] = 'Never';
+			
+				foreach($attrs as $attr)
+				{
+					$tags['WithAttribute '.$attr->AttributeName] = $attr->AttributeName.' Required';
+					$tags['WithoutAttribute '.$attr->AttributeName] = $attr->AttributeName.' Forbidden';
+				}
+			
+				$this->view->traversaltypes = json_encode($tags);
 			}
 		}
 	}

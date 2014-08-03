@@ -125,7 +125,7 @@
 			{
 				// Echo the actual tile :D
 				echo '<div class="maptile'.($clear ? ' clear-left' : '').'" style="background-color:'.$tile->Type->Colour.'">'.$tile->LocationName.($x == 0 && $y == 0 ? '<img style="position:absolute;bottom:0px;left:0px" src="/img/person.png"/>' : '').($tile->Character->count_all() > ($x == 0 && $y == 0 ? 1 : 0) ? '<img style="position:absolute;bottom:0px;right:0px" src="/img/otherperson.png"/>' : '');
-				if($x <= 1 && $x >= -1 && $y <= 1 && $y >= -1 && !($x == 0 && $y == 0))
+				if($x <= 1 && $x >= -1 && $y <= 1 && $y >= -1 && !($x == 0 && $y == 0) && $character->CanTraverse($location) === true)
 				{
 					// We can move here
 					$_link('/game/'.$character->CharacterID.'/move/'.$tile->LocationID, 'Move', 'button move_button', '#page_content nohash' );
