@@ -130,10 +130,21 @@ class Game extends \App\Page{
 				return;
 			}
 			
-			if($loc->Type->Traversible == 'Never' || $loc->Type->Traversible == 'WithAttribute') // Nope.jpg TODO: Check for attribute
+			if($loc->Type->Traversible == 'Never') // Nope.jpg
 			{
 				$this->view->warnings = 'You can\'t move there!';
 				return;
+			}
+			
+			$traverse = explode(" ", $loc->Type->Traversible, 2);
+			
+			if(count($traverse) == 2 && ($traverse[0] == 'WithAttribute' || $traverse[0] == 'WithoutAttribute'))
+			{
+				if(isset($character->CustomAttributes[$traverse[1]]) xor $traverse[0] == 'WithAttribute') // If either WithoutAttribute and they have it, or WithAttribute and they don't have it
+				{
+					$this->view->warnings = 'You can\'t move there!';
+					return;
+				}
 			}
 		
 			if(!$char->SpendAP($loc->Type->APCost)) // Need those sweet sweet APs

@@ -350,5 +350,36 @@ class Character extends \PHPixie\ORM\Model{
 			
 			return $tags;
 		}
+		else if($property == 'CustomAttributes')
+		{
+			// Items
+			$attr1 = $this->pixie->db->query('select')->table('item_instance')->fields('usage.UsageName', 'item_usage_attribute.AttributeName', 'item_usage_attribute.AttributeType', 'item_usage_attribute.AttributeValue')->join('item_usage_attribute',array('item_instance.ItemTypeID', 'item_usage_attribute.ItemTypeID'),'inner')->join('usage', array('item_usage_attribute.ItemUsageID', 'usage.UsageID'))->where('item_instance.CharacterID', $this->CharacterID)->where('usage.UsageName', 'customattribute')->execute()->as_array();
+			// Unique Items
+			$attr2 = $this->pixie->db->query('select')->table('item_instance')->fields('usage.UsageName', 'special_item_attribute.AttributeName', 'special_item_attribute.AttributeType', 'special_item_attribute.AttributeValue')->join('special_item_attribute',array('item_instance.ItemInstanceID', 'special_item_attribute.ItemInstanceID'),'inner')->join('usage', array('special_item_attribute.ItemUsageID', 'usage.UsageID'))->where('item_instance.CharacterID', $this->CharacterID)->where('usage.UsageName', 'customattribute')->execute()->as_array();
+			// Skills
+			$attr3 = $this->pixie->db->query('select')->table('skill')->fields('usage.UsageName', 'skill_effect.AttributeName', 'skill_effect.AttributeType', 'skill_effect.AttributeValue')->join('skill_effect',array('skill.SkillID', 'skill_effect.SkillID'),'inner')->join('usage', array('skill_effect.SkillUsageID', 'usage.UsageID'), 'inner')->join('skill_instance', array('skill.SkillID', 'skill_instance.SkillID'), 'inner')->where('skill_instance.CharacterID', $this->CharacterID)->where('usage.UsageName', 'customattribute')->execute()->as_array();
+			$attrs = array_merge($attr1, $attr2, $attr3);
+			$tags = array();
+			
+			foreach($attrs as $attr)
+			{
+				if(!isset($tags[$attr->AttributeName])) $tags[$attr->AttributeName] = $attr->AttributeValue;
+				else
+				{
+					if(is_numeric($tags[$attr->AttributeName]) && is_numeric($attr->AttributeName))
+					{
+						$tags[$attr->AttributeName] = $tags[$attr->AttributeName] + $attr->AttributeValue;
+					}
+					else
+					{
+						// shit, how do we handle non-numeric duplicate attributes?
+						// lets go for the last one, so that things can override one another
+						$tags[$attr->AttributeName] = $attr->AttributeValue;
+					}
+				}
+			}
+			
+			return $tags;
+		}
 	}
 }

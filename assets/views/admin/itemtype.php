@@ -61,6 +61,11 @@ $('#ItemTypeContainer').jtable({
 																	updateAction: '/admin/itemusageattribute?action=update&ItemTypeID=' + table.record.ItemTypeID + '&ItemUsageID=' + table2.record.ItemUsageID,
 																	deleteAction: '/admin/itemusageattribute?action=delete&ItemTypeID=' + table.record.ItemTypeID + '&ItemUsageID=' + table2.record.ItemUsageID
 																};
+																attrname = {
+																				title: 'Property',
+																				edit: true,
+																				options: '/admin/options?action=attributes&ItemTypeID=' + table.record.ItemTypeID + '&ItemUsageID=' + table2.record.ItemUsageID,
+																			};
 																if(table2.record.UsageName == 'armour')
 																{
 																		attrtype = {
@@ -80,6 +85,20 @@ $('#ItemTypeContainer').jtable({
 																							edit: true,
 																							options: '/admin/options?action=types&ItemTypeID=' + table.record.ItemTypeID + '&ItemUsageID=' + table2.record.ItemUsageID
 																						};																	
+																}
+																else if(table2.record.UsageName == 'customattribute')
+																{
+																		attrname = {
+																				title: 'Property',
+																				edit: true,
+																			};
+																		attrtype = {
+																					title: 'Type',
+																					list:  false,
+																					create:  false,
+																					edit:  false,
+																					defaultValue: ''
+																				};
 																}
 																else
 																{
@@ -121,12 +140,7 @@ $('#ItemTypeContainer').jtable({
 																							create: false,
 																							defaultValue: table.record.ItemTypeID
 																						},
-																						AttributeName:
-																						{
-																							title: 'Property',
-																							edit: true,
-																							options: '/admin/options?action=attributes&ItemTypeID=' + table.record.ItemTypeID + '&ItemUsageID=' + table2.record.ItemUsageID,
-																						},
+																						AttributeName: attrname,
 																						AttributeType: attrtype,
 																						AttributeValue:
 																						{

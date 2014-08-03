@@ -63,37 +63,70 @@ $('#SkillContainer').jtable({
 																};
 																if(table2.record.UsageName == 'armour')
 																{
-																		attrtype = {
-																							title: 'Type',
-																							list: true,
-																							create: true,
-																							edit: true,
-																							options: '/admin/options?action=types&SkillUsageID=' + table2.record.SkillUsageID
-																						};
+																	attrname = {
+																		title: 'Property',
+																		edit: true,
+																		options: '/admin/options?action=attributes&SkillUsageID=' + table2.record.SkillUsageID,
+																	};	
+																	attrtype = {
+																						title: 'Type',
+																						list: true,
+																						create: true,
+																						edit: true,
+																						options: '/admin/options?action=types&SkillUsageID=' + table2.record.SkillUsageID
+																					};
 																}
 																else if(table2.record.UsageName == 'weaponbuff')
 																{
-																		attrtype = {
-																							title: 'Affected Tag',
-																							list: true,
-																							create: true,
-																							edit: true,
-																							options: '/admin/options?action=types&SkillUsageID=' + table2.record.SkillUsageID
-																						};																	
+																	attrname = {
+																		title: 'Property',
+																		edit: true,
+																		options: '/admin/options?action=attributes&SkillUsageID=' + table2.record.SkillUsageID,
+																	};	
+																	attrtype = {
+																						title: 'Affected Tag',
+																						list: true,
+																						create: true,
+																						edit: true,
+																						options: '/admin/options?action=types&SkillUsageID=' + table2.record.SkillUsageID
+																				};																	
 																}
 																else if(table2.record.UsageName == 'activated')
 																{
-																		attrtype = {
-																					title: 'Type',
-																					list:  true,
-																					create:  true,
-																					edit:  true,
-																					defaultValue: ''
-																				};
+																	attrname = {
+																		title: 'Property',
+																		edit: true,
+																		options: '/admin/options?action=attributes&SkillUsageID=' + table2.record.SkillUsageID,
+																	};	
+																	attrtype = {
+																				title: 'Type',
+																				list:  true,
+																				create:  true,
+																				edit:  true,
+																				defaultValue: ''
+																			};
+																}
+																else if(table2.record.UsageName == 'customattribute')
+																{
+																	attrname = {
+																		title: 'Property',
+																		edit: true
+																	};	
+																	attrtype = {
+																				title: 'Type',
+																				list:  false,
+																				create:  false,
+																				edit:  false,
+																				defaultValue: ''
+																			};
 																}
 																else
 																{
-
+																	attrname = {
+																			title: 'Property',
+																			edit: true,
+																			options: '/admin/options?action=attributes&SkillUsageID=' + table2.record.SkillUsageID,
+																		};	
 																	attrtype = {
 																					title: 'Type',
 																					list:  false,
@@ -102,6 +135,7 @@ $('#SkillContainer').jtable({
 																					defaultValue: ''
 																				};
 																}
+																
 																$('#SkillContainer').jtable('openChildTable',
 																		$img.closest('tr'),
 																		{
@@ -131,12 +165,7 @@ $('#SkillContainer').jtable({
 																							create: false,
 																							defaultValue: table.record.SkillID
 																						},
-																						AttributeName:
-																						{
-																							title: 'Property',
-																							edit: true,
-																							options: '/admin/options?action=attributes&SkillUsageID=' + table2.record.SkillUsageID,
-																						},
+																						AttributeName: attrname,
 																						AttributeType: attrtype,
 																						AttributeValue:
 																						{
