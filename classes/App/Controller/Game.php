@@ -197,7 +197,7 @@ class Game extends \App\Page{
 			$this->view->action = 'You drop your '.$item->Type->ItemTypeName;
 			$this->view->ItemInstanceID = $item->ItemInstanceID;
 			$this->pixie->db->get()->execute("START TRANSACTION");
-			$this->pixie->db->query('delete')->table('item_usage_attribute')->where('ItemInstanceID', $item->ItemInstanceID)->execute();
+			$this->pixie->db->query('delete')->table('special_item_attribute')->where('ItemInstanceID', $item->ItemInstanceID)->execute();
 			$item->delete();
 			$this->pixie->db->get()->execute("COMMIT");
 			if($this->dynamicjs)
