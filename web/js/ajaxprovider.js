@@ -19,7 +19,7 @@ if(baseURL.indexOf('?') >= 0)
 	baseURL = baseURL.slice(0, baseURL.indexOf('?'));
 }
 
-var APPNAME = 'Project Steampunk';
+var APPNAME = $('title').html();
 
 // http://diveintohtml5.info/storage.html
 function supports_html5_storage() {
@@ -72,6 +72,181 @@ jQuery.extend
         }
     }
 );
+
+
+
+
+if(History.enabled)
+	{
+		// HTML5 browser, yay!
+		History.Adapter.bind(window,'statechange',function() { // Note: We are using statechange instead of popstate
+			var State = History.getState();
+			targetURL = State.url;
+			$.ajax({
+				type:'GET',
+				url: targetURL,
+				data: { ajax: 1, target: targetElement},
+				beforeSend: function(){
+					savePanels();
+					addMarker(targetElement, targetURL);
+					//$(targetElement).hide('fade');
+					LoadingSpinner(targetElement, true);
+				},
+				success: function(data, status, xhr){
+					if(checkMarker(targetElement, targetURL))
+					{
+						$(targetElement).html(data);
+						if($('.title').length > 0)
+						{
+							$('head title').html($('.title').html());
+						}
+						else
+						{
+							$('head title').html(APPNAME);
+						}
+						setAjaxForms();
+						setAjaxLinks();
+						prettify();
+						restorePanels();
+					}
+				},
+				error: function(data, status, xhr){
+				
+					if(checkMarker(targetElement, targetURL))
+					{
+						$(targetElement).html(data);
+						setAjaxForms();
+						LoadingSpinner(targetElement, false);
+					}
+					
+				},
+				complete: function(XHR, status){
+					if(status == 'timeout')
+					{
+						alert('The remote web page timed out!');
+					}
+					$(targetElement).hide();
+					LoadingSpinner(targetElement, false);
+					$(targetElement).show(); //$(targetElement).show('fade');
+					if(targetElement == '#page_content') $("html, body").animate({ scrollTop: 0 }, "slow");
+				},
+				timeout: '300000'
+			});
+			
+		});
+	
+	}
+	else
+	{
+	
+	
+	
+	
+		$(window).bind('hashchange', function()
+	{
+		savePanels();
+		if(temporarilyIgnoreHashChange)
+		{
+			temporarilyIgnoreHashChange = false
+			return;
+		}
+		if(location.hash != '' && location.hash != '#')
+		{
+			if(location.hash.indexOf('->') > -1)
+			{
+				hashData = location.hash.slice(1).split('->');
+				targetElement = hashData[0];
+				targetURL = hashData[1];
+			}
+			else
+			{
+				targetElement = '#page_content';
+				targetURL = location.hash.slice(1);
+			}
+			
+			if(targetURL.slice(0, 1) != '/' && !baseURL.endsWith('/'))
+			{
+				targetURL = '/' + targetURL;
+			}
+			else if(targetURL.slice(0, 1) == '/' && baseURL.endsWith('/'))
+			{
+				targetURL = targetURL.substring(1);
+			}
+			targetURL = baseURL + targetURL;
+			
+			$.ajax({
+				type:'GET',
+				url: targetURL,
+				data: { ajax: 1, target: targetElement},
+				beforeSend: function(){
+					addMarker(targetElement, targetURL);
+					//$(targetElement).hide('fade');
+					LoadingSpinner(targetElement, true);
+				},
+				success: function(data, status, xhr){
+					//if(checkMarker(targetElement, targetURL))
+					//{
+						$(targetElement).html(data);
+						if($('.title').length > 0)
+						{
+							$('head title').html($('.title').html());
+						}
+						else
+						{
+							$('head title').html(APPNAME);
+						}
+						setAjaxForms();
+						setAjaxLinks();
+						prettify();
+						restorePanels();
+						/*if(window.location.pathname.slice(1) == location.hash.slice(1))
+						{
+							location.hash = '';
+						}*/
+
+					//}
+				},
+				error: function(data, status, xhr){
+				
+					if(checkMarker(targetElement, targetURL))
+					{
+						$(targetElement).html(data);
+						setAjaxForms();
+						LoadingSpinner(targetElement, false);
+						/*if(window.location.pathname.slice(1) == location.hash.slice(1))
+						{
+							location.hash = '';
+						}*/
+
+					}
+					
+				},
+				complete: function(XHR, status){
+					if(status == 'timeout')
+					{
+						alert('The remote web page timed out!');
+					}
+					//$(targetElement).hide();
+					LoadingSpinner(targetElement, false);
+					//$(targetElement).show(); //$(targetElement).show('fade');
+					if(targetElement == '#page_content') $("html, body").animate({ scrollTop: 0 }, "slow");
+				},
+				timeout: '300000'
+			});
+		}
+	});
+	$(window).trigger('hashchange'); 
+	
+	
+	
+	
+	
+	
+	
+	
+	}
+
+
 
 /*
 
@@ -174,100 +349,7 @@ $(document).ready(function(){
 	
 	
 	
-	$(window).bind('hashchange', function()
-	{
-		savePanels();
-		if(temporarilyIgnoreHashChange)
-		{
-			temporarilyIgnoreHashChange = false
-			return;
-		}
-		if(location.hash != '' && location.hash != '#')
-		{
-			if(location.hash.indexOf('->') > -1)
-			{
-				hashData = location.hash.slice(1).split('->');
-				targetElement = hashData[0];
-				targetURL = hashData[1];
-			}
-			else
-			{
-				targetElement = '#page_content';
-				targetURL = location.hash.slice(1);
-			}
-			
-			if(targetURL.slice(0, 1) != '/' && !baseURL.endsWith('/'))
-			{
-				targetURL = '/' + targetURL;
-			}
-			else if(targetURL.slice(0, 1) == '/' && baseURL.endsWith('/'))
-			{
-				targetURL = targetURL.substring(1);
-			}
-			targetURL = baseURL + targetURL;
-			
-			$.ajax({
-				type:'GET',
-				url: targetURL,
-				data: { ajax: 1, target: targetElement},
-				beforeSend: function(){
-					addMarker(targetElement, targetURL);
-					//$(targetElement).hide('fade');
-					LoadingSpinner(targetElement, true);
-				},
-				success: function(data, status, xhr){
-					//if(checkMarker(targetElement, targetURL))
-					//{
-						$(targetElement).html(data);
-						if($('.title').length > 0)
-						{
-							$('head title').html($('.title').html());
-						}
-						else
-						{
-							$('head title').html(APPNAME);
-						}
-						setAjaxForms();
-						setAjaxLinks();
-						prettify();
-						restorePanels();
-						/*if(window.location.pathname.slice(1) == location.hash.slice(1))
-						{
-							location.hash = '';
-						}*/
-
-					//}
-				},
-				error: function(data, status, xhr){
-				
-					if(checkMarker(targetElement, targetURL))
-					{
-						$(targetElement).html(data);
-						setAjaxForms();
-						LoadingSpinner(targetElement, false);
-						/*if(window.location.pathname.slice(1) == location.hash.slice(1))
-						{
-							location.hash = '';
-						}*/
-
-					}
-					
-				},
-				complete: function(XHR, status){
-					if(status == 'timeout')
-					{
-						alert('The remote web page timed out!');
-					}
-					//$(targetElement).hide();
-					LoadingSpinner(targetElement, false);
-					//$(targetElement).show(); //$(targetElement).show('fade');
-					if(targetElement == '#page_content') $("html, body").animate({ scrollTop: 0 }, "slow");
-				},
-				timeout: '300000'
-			});
-		}
-	});
-	$(window).trigger('hashchange'); 
+	
 });
 
 function ajaxURL(data)
@@ -316,20 +398,28 @@ function ajaxURL(data)
 	
 	if(useHashChange)
 	{
-		if(targetElement == '#page_content')
-		{
-			newhash = '#' + data.href.slice(data.href.indexOf(window.location.hostname) + window.location.hostname.length + 1);
-			if(location.port != '') newhash = newhash.replace('#' + location.port, '#');
-			location.hash = newhash;
-			return false;
-		}
-		else
-		{
-			temporarilyIgnoreHashChange = true;
-			newhash = '#' + data.href.slice(data.href.indexOf(window.location.hostname) + window.location.hostname.length + 1);
-			if(location.port != '') newhash = newhash.replace('#' + location.port, '#');
-			location.hash = newhash;
-		}
+
+	
+	targetURL = data.href;
+	
+	
+	if(History.enabled && targetElement == '#page_content') // Yay for HTML5 browsers
+	{
+		History.pushState(null, APPNAME, data.href);
+		return false;
+	}
+	
+	
+	
+	if(targetElement == '#page_content')
+	{
+
+		location.hash = '#' + data.href.slice(data.href.indexOf(window.location.hostname) + window.location.hostname.length + 1);
+		return false;
+	}
+	
+
+	
 	}
 	
 	$.ajax({
@@ -357,10 +447,7 @@ function ajaxURL(data)
 				setAjaxLinks();
 				prettify();
 				restorePanels();
-				/*if(window.location.pathname.slice(1) == location.hash.slice(1))
-				{
-					location.hash = '';
-				}*/
+
 
 			//}
 		},
@@ -371,10 +458,6 @@ function ajaxURL(data)
 				$(targetElement).html(data);
 				setAjaxForms();
 				LoadingSpinner(targetElement, false);
-				/*if(window.location.pathname.slice(1) == location.hash.slice(1))
-				{
-					location.hash = '';
-				}*/
 
 			}
 			
@@ -466,11 +549,6 @@ function ajaxForm(data)
 				setAjaxForms();
 				setAjaxLinks();
 				prettify();
-				
-				/*if(window.location.pathname.slice(1) == location.hash.slice(1))
-				{
-					location.hash = '';
-				}*/
 
 			}
 			
@@ -484,27 +562,7 @@ $(document).ready(function(){
 	$('.show_sidebar').hide();
 
 	$('#ajax_error').ajaxError(function(event, request, settings){
-		if (request.status == 500)
-		{
-			$('#ajax_error').html('<p>The server encountered an error while processing your request. Please email the webmaster with the details below:</p>' + request.responseText);
-		}
-		else if (request.status == 403)
-		{
-			$('#ajax_error').html('<p>You aren\'t allowed to access that!</p>' + request.responseText);
-		}
-		else if (request.status == 404)
-		{
-			$('#ajax_error').html('<p>The link you followed wasn\'t found on the server.</p>' + request.responseText);
-		}
-		else
-		{
-			return;
-			//$('#ajax_error').html('Error: ' + request.status + '<br/>'  + request.responseText);
-		}
-		//TODO: remove following two lines before production use
-		// Only useful for CodeIgniter installations
-		//$('#ajax_error').html($('#ajax_error').html().replace('<style','<script'));
-		//$('#ajax_error').html($('#ajax_error').html().replace('</style>','</script>'));
+		$('#ajax_error').html(request.responseText.replace('<style','<div style="display:none"').replace('</style>','</div>'));
 		$('#ajax_error').dialog({ autoOpen: true, modal: true, title: 'Error', 
 				buttons:{
 							"Aww Shucks": function()
@@ -636,7 +694,8 @@ function ProcessSidebar()
 }
 
 function LoadingSpinner(element, onOrOff) // We aren't using the loading spinner here, due to the slowdown. Possibly switch to some snazzy css3 transitions instead
-{/*
+{
+	return;
 	if(onOrOff)
 	{
 		//data = $(element).html();
@@ -656,7 +715,7 @@ function LoadingSpinner(element, onOrOff) // We aren't using the loading spinner
 		$(element + '.loading_spinner').remove();
 		$(element).removeClass('old_content');
 		$(element).removeClass('loading_spinner_parent_relative');
-	}*/
+	}
 }
 
 function addMarker(element, data) // Intended to deal with users trying to do multiple AJAX actions into the same div
@@ -685,30 +744,13 @@ function checkMarker(element, data)
 
 function setAjaxForms()
 {	
-	return; // No longer used, did provide some backwards compatibility for awful browsers which we never hope to see again
-	$("form").submit(function(e) {
-		if($(this).find('input[name=no_ajax]').length)
-		{
-			return true;
-		}
-		if(!$(this).attr('id') || $(this).attr('id').length == 0)
-		{
-			return false;
-			//$(this).attr('id', 'form_id_' + Math.floor(Math.random() * 1000000));
-		}
-		targetElement = "#" + $(this).attr('id');
-		ajaxForm(targetElement);
-		// do not submit the form
-		return false;
-	});
+	// No longer used, did provide some backwards compatibility for awful browsers which we never hope to see again
 }
 
 function setAjaxLinks()
 {
-	return; // No longer used, did provide some backwards compatibility for awful browsers which we never hope to see again
-	$("a").click(function(e){
-		return ajaxURL(this);
-	});
+	// No longer used, did provide some backwards compatibility for awful browsers which we never hope to see again
+
 }
 
 function savePanels()
