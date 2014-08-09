@@ -224,3 +224,7 @@ a:hover
 
 
 
+.character-select{position:relative;background-color:black;transition: .3s linear;}
+.character-select div{position:absolute;top:0px;color:white;font-size:150%;font-size:2vw;text-shadow:3px 3px 8px black;}
+.character-select:hover{z-index:5;box-shadow: 0px 1px 30px rgba(0, 0, 0, 0.05) inset, 0px 0px 80px rgba(82, 168, 236, 250), 0px 0px 80px rgba(82, 168, 236, 250);transform:scale(1.2) rotateX(12deg) rotateY(12deg) }
+.character-select div img{width:2vw;height:3vh}

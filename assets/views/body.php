@@ -22,7 +22,6 @@
 				if(isset($subview) && $subview != '') require($subview.'.php');
 			?>
 		</div>
-	
 	</div>
 	
 	
