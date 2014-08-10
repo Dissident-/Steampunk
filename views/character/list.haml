@@ -1,0 +1,23 @@
+- user.characters.each do |key, val|
+	.div-30.character-select
+		%img(src="/icons/lorc/originals/svg/robe.svg" style="width:80%;padding:15% 0% 5% 20%")
+		%div
+			%p
+				=val.name
+			%p
+				%img(src="/icons/lorc/originals/svg/half-heart.svg")
+				=val.hp
+			%p
+				%img(src="/icons/lorc/originals/svg/wingfoot.svg")
+				=val.ap
+			%p
+				%img(src="/icons/lorc/originals/svg/jigsaw-piece.svg")
+				=val.xp
+			%p
+				%img(src="/icons/lorc/originals/svg/open-book.svg")
+				=val.level
+			%p
+				%img(src="/icons/lorc/originals/svg/light-bulb.svg")
+				=val.cp
+.clear-left.padding-10
+!= HTML::Link('/character/create', 'New Character', 'button')

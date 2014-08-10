@@ -1,0 +1,230 @@
+html, body
+{
+	font-size:0.9em;
+	min-width:480px;
+	background-color:lightgrey;
+	position:relative;
+	padding:0;
+	margin:0;
+	font-family: Verdana, Arial;
+}
+h1,h2,h3,h4,h5
+{
+	padding-top:0px;
+	margin-top:17px;
+	padding-bottom:5px;
+	margin-bottom:0px;
+	padding-left:5px;
+	padding-right:5px;
+	clear:left;
+}
+.move_button
+{
+	opacity:0.5;
+	position:absolute;
+	bottom:5%;
+	left:5%;
+	width:90%;
+}
+#activity_log a
+{
+	color:black;
+	font-weight:bold;
+	text-decoration:none;
+}
+.maptile
+{
+	width:19.2%;
+	height:75px;
+	max-width:75px;
+	border:1px solid black;
+	float:left;
+	font-size:70%;
+	position:relative;
+}
+p
+{
+	padding:0 0 0 0;
+	margin:10px 5px 10px 5px;
+}
+#js_dialog
+{
+	display:none;
+}
+.js_dialog
+{
+	display:none;
+}
+.combobox .ui-button { margin-left: -1px; }
+.combobox .ui-button-icon-only .ui-button-text { padding: 0.35em; } 
+.combobox .ui-autocomplete-input { margin: 0; padding: 0.48em 0 0.47em 0.45em; }
+.combobox label, #logon_step3_div label { display:inline-block; min-width:200px;}
+.div-30
+{
+	float:left;
+	width:30%;
+	margin-left:1%;
+}
+.div-60
+{
+	float:left;
+	width:60%;
+	margin-left:2%;
+}
+.div-50
+{
+	float:left;
+	margin-left:0.5%;
+	margin-right:0.5%;
+	width:49%;
+}
+.div-25
+{
+	float:left;
+	margin-left:0.5%;
+	margin-right:0.5%;
+	width:24%;
+}
+.div-75
+{
+	float:left;
+	margin-left:0.5%;
+	margin-right:0.5%;
+	width:74%;
+}
+.ui-icon
+{
+	display:inline-block;
+}
+.padding-10
+{
+	padding:10px;
+}
+.padding-bottom-10
+{
+	padding-bottom:10px;
+}
+.margin-10
+{
+	margin:10px;
+}
+.margin-vertical-0
+{
+	margin-top:0;
+	margin-bottom:0;
+}
+.width-max
+{
+	width:100%;
+}
+.width-min
+{
+	width:0%;
+	overflow:auto;
+}
+.width-50
+{
+	width:50%;
+}
+.width-165
+{
+	width:165px;
+	overflow:auto;
+}
+.clear-left
+{
+	clear:left;
+}
+.ui-progressbar
+{
+	height:22px !important;
+}
+.ui-progressbar-value 
+{
+	background-image: url(../images/pbar-ani.gif) !important;
+	background-repeat: both !important;
+}
+.list-plain
+{
+    list-style-type:none;
+	padding-left:10px;
+}
+.list-horizontal li
+{
+	list-style-type:none;
+	display:inline;
+}
+.inline-block
+{
+	display:inline-block;
+}
+.inline
+{
+	display:inline;
+}
+.text-center
+{
+	text-align:center;
+}
+.animated-progress
+{
+	background: url{images/pbar-ani.gif} !important;
+}
+.text-centered
+{
+	text-align: center;
+}
+a:hover
+{
+	text-decoration: underline;
+}
+.inputs-newline input[type=text], .inputs-newline  input[type=password]
+{
+	display:block;
+}
+.loading_spinner_parent_relative
+{
+	position:relative;
+}
+
+
+.log-attack-hit, .log-defend-hit
+{
+}
+.log-defend-miss, .log-defend-hit
+{
+	color:red;
+}
+.log-defend-hit
+{
+	font-weight:bold;
+}
+.log-died
+{
+	color:red;
+	font-weight:bold;
+	text-decoration:underline;
+}
+.log-player-kill
+{
+	font-weight:bold;
+}
+.log-levelup
+{
+	
+}
+.log-respawn
+{
+}
+.log-levelup-self
+{
+	color:green;
+	font-weight:bold;
+}
+
+
+
+.character-select{position:relative;background-color:black;transition: .3s linear;}
+.character-select div{position:absolute;top:0px;color:white;font-size:150%;font-size:2vw;text-shadow:3px 3px 8px black;}
+.character-select:hover{z-index:5;box-shadow: 0px 1px 30px rgba(0, 0, 0, 0.05) inset, 0px 0px 80px rgba(82, 168, 236, 250), 0px 0px 80px rgba(82, 168, 236, 250);transform:scale(1.2) rotateX(12deg) rotateY(12deg) }
+.character-select div img{width:2vw;height:3vh}

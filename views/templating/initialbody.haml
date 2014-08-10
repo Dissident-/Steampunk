@@ -1,0 +1,7 @@
+.margin-10.padding-10(style="bottom:0px")
+	%h1.ui-corner-top.ui-widget-header Nexus Brawl
+	.ui-widget-content.padding-10#quicklinks
+		!= Interface::Element.Quicklinks user
+	.ui-corner-bottom.ui-widget-content.padding-10(style="bottom:0px")
+		#page_content
+			!= haml content, :locals => data if defined? content and content != nil
