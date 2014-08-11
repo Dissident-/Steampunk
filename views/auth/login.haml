@@ -1,5 +1,7 @@
 != HTML.Form('/auth/login', 'form_login', false)
 
+!= HTML.Validate(errors) if defined? errors
+
 != HTML.InputLine('Username', params[:Username])
 != HTML.InputLine('Password', params[:Password], 'password')
 

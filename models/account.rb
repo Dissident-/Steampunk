@@ -1,4 +1,5 @@
 require 'bcrypt' unless ENV['OS'] == 'Windows_NT'
+require 'digest/md5';
 
 module Dimension
 	class Account
@@ -29,14 +30,31 @@ module Dimension
 			return @@list_by_id[id]
 		end
 		
+		def check_password(password)
+			if @password.kind_of?(Array) then
+				return Digest::MD5.hexdigest(password + @password[1]) == @password[0]
+			else
+				return @password == password
+			end
+		end
+		
 		def set_password(password)
 			@password = BCrypt::Password.create password unless ENV['OS'] == 'Windows_NT'
 			@password = password if ENV['OS'] == 'Windows_NT'
 		end
 		
+		def load_password(password)
+			begin
+				@password = BCrypt::Password.set password unless ENV['OS'] == 'Windows_NT'
+			rescue	
+				@password = password.split(":")
+			end
+			@password = password if ENV['OS'] == 'Windows_NT'
+		end
+		
 		def self.load(values)
 			new = Account.new values[:Username]
-			new.set_password values[:Password]
+			new.load_password values[:Password]
 			new.email = values[:EmailAddress]
 			@@list_by_id[values[:AccountID]] = new
 			return new

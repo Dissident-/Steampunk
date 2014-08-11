@@ -22,6 +22,7 @@ module HTML
 	end
 	
 	def Validate(errors)
+		data = ""
 		if errors.kind_of?(Array) then
 			data = "<div class=\"margin-10 padding-10 ui-corner-all ui-state-error\">"
 			errors.each { |v| 
@@ -33,13 +34,13 @@ module HTML
 					data = data + "<p>#{vv}</p>"
 
 					}
+				else
+					data = data + "<p>#{v}</p>"
 				end
 
 			}
-		else
-			data = data + "<p>#{v}</p>"
+			data = data + "</div>"
 		end
-		data = data + "</div>"
 		return data
 	end
 	

@@ -28,7 +28,7 @@ end
 #end
 
 before do
-	@viewdata = {:user => Dimension::Account.find(session[:username]), :ajax => AJAX::Templating.new(env, params)}
+	@viewdata = {:user => session[:user], :ajax => AJAX::Templating.new(env, params)}
 end
 
 require_rel 'controllers'

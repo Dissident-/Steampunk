@@ -9,7 +9,7 @@ end
 
 post '/character/create' do
 
-	user = Dimension::Account.find session[:username]
+	user = session[:user]
 	
 	user.add_character params[:CharName]
 	

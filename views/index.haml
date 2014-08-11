@@ -2,7 +2,7 @@
 - data.merge!({:user => user}) if defined? data
 - data = {:user => user} unless defined? data
 - data = {:user => user} if data == nil
-- pp data
+
 != haml :'templating/head', :locals => data if ajax.render? :head
 
 != haml :'templating/initialbody', :locals => {:data => data, :user => user, :content => content}   if ajax.render? :initialbody
