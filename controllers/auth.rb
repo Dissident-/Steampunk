@@ -1,6 +1,6 @@
 
 get '/auth/login' do
-	haml :index, :locals => {:data => {:user => Dimension::Account.find(session[:username])}, :content => :'auth/login', :ajax => AJAX::Templating.new(env, params)}
+	haml :index, :locals => @viewdata.merge!({:content => :'auth/login'})
 end
 
 
@@ -16,7 +16,7 @@ end
 
 
 get '/auth/register' do
-	haml :index, :locals => {:data => {:user => Dimension::Account.find(session[:username])}, :content => :'auth/register', :ajax => AJAX::Templating.new(env, params)}
+	haml :index, :locals => @viewdata.merge!({:content => :'auth/register'})
 end
 
 post '/auth/register' do

@@ -2,8 +2,8 @@ require 'require_all'
 require 'sinatra'
 require 'thread_safe'
 require 'sequel'
+require 'pp'
 
-#require 'sinatra/session'
 use Rack::Session::Pool
 require 'haml'
 
@@ -27,6 +27,12 @@ end
 #    end
 #end
 
+before do
+	@viewdata = {:user => Dimension::Account.find(session[:username]), :ajax => AJAX::Templating.new(env, params)}
+end
+
 require_rel 'controllers'
 require_rel 'models'
 require_rel 'helpers'
+
+require_rel 'continuity' unless ENV['OS'] == 'Windows_NT'

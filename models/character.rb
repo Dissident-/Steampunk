@@ -23,5 +23,15 @@ module Dimension
 		def self.find(name)
 			return @@list[name]
 		end
+		
+		def self.load(values)
+			new = Account.find_by_id(values[:AccountID]).add_character values[:CharName]
+			new.hp = values[:HitPoints]
+			new.ap = values[:ActionPoints]
+			new.xp = values[:Experience]
+			new.level = values[:Level]
+			new.cp = values[:SkillPoints]
+			return new
+		end
 	end
 end

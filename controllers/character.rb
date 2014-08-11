@@ -1,15 +1,15 @@
 
 get '/character/list' do
-	haml :index, :locals => {:data => {:user => Dimension::Account.find(session[:username])}, :content => :'character/list', :ajax => AJAX::Templating.new(env, params)}
+	haml :index, :locals => @viewdata.merge!({:content => :'character/list'})
 end
 
 get '/character/create' do
-	haml :index, :locals => {:data => {:user => Dimension::Account.find(session[:username])}, :content => :'character/create', :ajax => AJAX::Templating.new(env, params)}
+	haml :index, :locals => @viewdata.merge!({:content => :'character/create'})
 end
 
 post '/character/create' do
 
-	user = Dimension::Account.find(session[:username])
+	user = Dimension::Account.find session[:username]
 	
 	user.add_character params[:CharName]
 	
