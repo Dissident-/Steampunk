@@ -12,10 +12,17 @@ module Dimension
 		attr_accessor :email
 		attr_reader :characters
 		
-		def initialize(newname)
+		def initialize(newname, password)
 			@username = newname
 			@@list[@username] = self
 			@characters = {}
+			
+			begin
+				@password = BCrypt::Password.set password unless ENV['OS'] == 'Windows_NT'
+			rescue	
+				@password = password.split(":")
+			end
+			@password = password if ENV['OS'] == 'Windows_NT'
 		end
 		
 		def add_character(name)
@@ -43,18 +50,8 @@ module Dimension
 			@password = password if ENV['OS'] == 'Windows_NT'
 		end
 		
-		def load_password(password)
-			begin
-				@password = BCrypt::Password.set password unless ENV['OS'] == 'Windows_NT'
-			rescue	
-				@password = password.split(":")
-			end
-			@password = password if ENV['OS'] == 'Windows_NT'
-		end
-		
 		def self.load(values)
-			new = Account.new values[:Username]
-			new.load_password values[:Password]
+			new = Account.new(values[:Username], values[:Password])
 			new.email = values[:EmailAddress]
 			@@list_by_id[values[:AccountID]] = new
 			return new

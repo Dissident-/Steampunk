@@ -1,0 +1,42 @@
+%div
+	.ui-corner-left.ui-widget-content.padding-10(style="float:left")
+		!= HTML::Link('/character/profile/' + character.name, character.name)
+	.ui-state-error.padding-10(style="float:left")
+		!= character.hp.to_s + 'HP'
+	.ui-state-highlight.padding-10(style="float:left")
+		!= character.ap.to_s + 'AP'
+	.ui-widget-content.padding-10(style="float:left")
+		!= character.xp.to_s + 'XP'
+	.ui-widget-content.padding-10(style="float:left;border-left:none")
+		!= 'Lv' + character.level.to_s
+	.ui-corner-right.ui-widget-content.padding-10(style="float:left;border-left:none")
+		!= character.cp.to_s + 'CP'
+	.clear-left(style="padding-top:10px;display:block;min-height:39px;")
+		- hide_minor_actions = "ui-helper-hidden" unless defined? minor_actions and minor_actions != nil
+		!= "<div id=\"game_minor_actions\" class=\"padding-10 ui-state-highlight ui-corner-all #{hide_minor_actions}\">"
+		!= minor_actions if defined? minor_actions and minor_actions != nil
+		!= "</div>"
+		- hide_minor_warnings = "ui-helper-hidden" unless defined? minor_warnings and minor_warnings != nil
+		!= "<div id=\"game_minor_warnings\" class=\"padding-10 ui-state-error ui-corner-all #{hide_minor_warnings}\">"
+		!= minor_warnings if defined? minor_warnings and minor_warnings != nil
+		!= "</div>"
+	.clear-left
+.padding-10(style="position:absolute;height:100%;left:10px;right:405px;")
+	%h3
+		Details
+	.ui-corner-bottom.ui-widget-content
+		#activity_log.ui-corner-all.ui-widget-content.margin-10(style="overflow:auto;height:100px")
+			%ul.list-plain
+				%li
+					Various events occur...
+		
+		.padding-10
+			!= HTML.Form('/game/speak', 'form_speak')
+			%input(type="text" name="speech" value="" style="margin-right:1%;display:inline;width:80%;")
+			!= HTML.Submit("Speak")	
+			!= HTML.Form
+		%p
+			%b
+				!= character.location.name + ', ' + character.location.type.name + ' (' + character.location.x.to_s + ', ' + character.location.y.to_s + ', ' + character.location.plane.name + ')'
+		%p
+			!= character.location.description

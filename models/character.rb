@@ -31,6 +31,7 @@ module Dimension
 			new.xp = values[:Experience]
 			new.level = values[:Level]
 			new.cp = values[:SkillPoints]
+			new.location = Location.find_by_id values[:LocationID]
 			return new
 		end
 	end

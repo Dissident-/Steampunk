@@ -9,7 +9,7 @@ post '/auth/login' do
 	if user then
 		if user.check_password(params[:Password]) then
 			session[:user] = user
-			redirect to('/')
+			redirect to('/character/list')
 		else
 			haml :index, :locals => @viewdata.merge!({:content => :'auth/login', :data => { :errors => [ "Incorrect password" ] }})
 		end

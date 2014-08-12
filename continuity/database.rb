@@ -24,19 +24,40 @@ show_wait_spinner{
 	DB = Sequel.connect("jdbc:mysql://127.0.0.1/brawl?user=brawl&password=FDybdt8uddy")
 
 	}
+puts "100%"		
+print 'Loading planes...'
+show_wait_spinner{
+	DB.fetch("SELECT * FROM `plane`") do |row|
+		Dimension::Plane.load row
+	end
+}
+puts "100%"		
+print 'Loading location types...'
+show_wait_spinner{
+	DB.fetch("SELECT * FROM `tile_type`") do |row|
+		Dimension::LocationType.load row
+	end
+}
 puts "100%"	
+print 'Loading locations...'
+show_wait_spinner{
+	DB.fetch("SELECT * FROM `location`") do |row|
+		Dimension::Location.load row
+	end
+}
+puts "100%"		
 print 'Loading accounts...'
 
 show_wait_spinner{
 	DB.fetch("SELECT * FROM `account`") do |row|
-		account = Dimension::Account.load row
+		Dimension::Account.load row
 	end
 }
 puts "100%"	
 print 'Loading characters...'
 show_wait_spinner{
 	DB.fetch("SELECT * FROM `character`") do |row|
-		character = Dimension::Character.load row
+		Dimension::Character.load row
 	end
 }
 puts "100%"	
