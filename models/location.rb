@@ -4,12 +4,12 @@ module Dimension
 		@@list = ThreadSafe::Array.new
 		@@list_by_id = ThreadSafe::Cache.new
 		
-		@@occupants = ThreadSafe::Cache.new
-		
 		attr_reader :id
 		attr_accessor :plane, :x, :y, :z #TODO: Adjust list_by_coordinates if they ever get altered? or disable altering
 		attr_accessor :type
 		attr_accessor :name, :description
+		
+		
 		attr_reader :occupants
 		
 		def initialize(plane, x, y, z, id = nil)
@@ -21,22 +21,29 @@ module Dimension
 			plane.add_location self
 			@@list_by_id[id] = self unless id == nil
 			@id = id
+			@occupants = ThreadSafe::Cache.new
+		end
+		
+		def surrounds(area = 2)
+			sur = ThreadSafe::Array.new
+			for yy in (y - area)..(y + area)
+				for xx in (x - area)..(x + area)
+					sur << @plane.find_location(xx, yy, @z)
+				end
+			end
+			return sur
 		end
 		
 		def arrive(char)
-			@@occupants[char.name] = char
+			@occupants[char.name] = char
 		end
 		
 		def depart(char)
-			@@occupants.delete! char.name
+			@occupants.delete! char.name
 		end
 		
 		def self.find_by_id(id)
 			return @@list_by_id[id]
-		end
-		
-		def self.find_by_coordinates(p, x, y, z)
-			return p.find_location(x, y, z)
 		end
 		
 		def check_password(password)

@@ -22,7 +22,7 @@
 		!= "</div>"
 	.clear-left
 .padding-10(style="position:absolute;height:100%;left:10px;right:405px;")
-	%h3
+	%h3.ui-corner-top.ui-widget-header
 		Details
 	.ui-corner-bottom.ui-widget-content
 		#activity_log.ui-corner-all.ui-widget-content.margin-10(style="overflow:auto;height:100px")
@@ -40,3 +40,40 @@
 				!= character.location.name + ', ' + character.location.type.name + ' (' + character.location.x.to_s + ', ' + character.location.y.to_s + ', ' + character.location.plane.name + ')'
 		%p
 			!= character.location.description
+		- if character.location.occupants.keys.count > 1
+			%p
+				You can see #{(character.location.occupants.keys.count - 1).to_s} other #{character.location.occupants.keys.count == 2 ? 'person' : 'people'} at this location:
+			%ul
+				- character.location.occupants.keys.sort.each do |key|
+					- if character.name != key
+						%li
+							!= HTML.Link('/character/profile/' + key, key)
+		!= HTML.Link('/game/search', 'Search', 'button margin-10', '#page_content nohash')
+		
+		
+
+.padding-10(style="position:absolute;width:375px;height:100%;right:10px;margin-top:15px")
+	#right_panel
+		%ul
+			%li
+				%a(href="#map" rel="no_ajax")
+					Map
+			%li
+				%a(href="#inventory" rel="no_ajax")
+					Inventory
+		#map.ui-corner-bottom.ui-widget-content(style="padding:0px")
+			- curtile = -1
+			- character.location.surrounds.each do |tile|
+				- curtile = (curtile + 1) % 5
+				- if tile == nil then
+					!= "<div class=\"maptile#{ curtile == 0 ? ' clear-left' : '' }\" style=\"background-color:black\">"
+					!= "</div>"
+				- else
+					!= "<div class=\"maptile#{ curtile == 0 ? ' clear-left' : '' }\" style=\"background-color:#{tile.type.colour}\">#{tile.name == nil ? tile.type.name : tile.name}"
+					!= '<img style="position:absolute;bottom:0px;right:0px" src="/img/otherperson.png"/>' if tile.occupants.keys.count > (character.location == tile ? 1 : 0)
+					- if character.location == tile
+						!= '<img style="position:absolute;bottom:0px;left:0px" src="/img/person.png"/>' if character.location == tile
+					- else
+						!= HTML.Link('/game/move/' + tile.id.to_s, 'Move', 'button move_button', '#page_content nohash') if (character.location.x - tile.x).abs < 2 and (character.location.y - tile.y).abs < 2
+					!= '</div>'
+		#inventory
