@@ -9,6 +9,16 @@ before '/game' do
 	end
 end
 
+get '/game/respawn' do
+	session[:character].respawn
+	redirect '/game'
+end
+
 get '/game' do
-	haml :index, :locals => @viewdata.merge!({:content => :'game/index', :data => { :character => session[:character] }})
+	@character = session[:character]
+	if @character.hp > 0 then
+		haml :index, :locals => @viewdata.merge!({:content => :'game/index', :data => { :character => @character }})
+	else
+		haml :index, :locals => @viewdata.merge!({:content => :'game/dead', :data => { :character => @character }})
+	end
 end

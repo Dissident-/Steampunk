@@ -18,6 +18,7 @@ def show_wait_spinner(fps=10)
   }                # Use the block's return value as the method's
 end
  
+
 print 'Connecting to database...'
 
 show_wait_spinner{
@@ -58,6 +59,13 @@ print 'Loading characters...'
 show_wait_spinner{
 	DB.fetch("SELECT * FROM `character`") do |row|
 		Dimension::Character.load row
+	end
+}
+puts "100%"	
+print 'Loading messages...'
+show_wait_spinner{
+	DB.fetch("SELECT activity_log.Timestamp, activity_log.ActivityLogID, activity_log.Activity, CharName FROM activity_log INNER JOIN activity_log_reader ON activity_log.ActivityLogID = activity_log_reader.ActivityLogID INNER JOIN `character` ON character.CharacterID = activity_log_reader.CharacterID") do |row|
+		Dimension::Message.load row
 	end
 }
 puts "100%"	
