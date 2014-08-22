@@ -22,7 +22,7 @@ end
 print 'Connecting to database...'
 
 show_wait_spinner{
-	DB = Sequel.connect("jdbc:mysql://127.0.0.1/brawl?user=esk")
+	DB = Sequel.connect("jdbc:mysql://127.0.0.1/dungeon?user=esk")
 
 	}
 puts "100%"		
