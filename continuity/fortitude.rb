@@ -5,7 +5,7 @@ module Dimension
 	class Sourcery
 		def self.persistence()
 		
-			puts '*** *** *** OPEN THE DUNGEON DIMENSIONS *** *** *** SAVES ON A PLANE'
+			puts '*** *** *** SEEK THE DUNGEON DIMENSIONS *** *** *** SAVES ON A PLANE'
 			
 			
 			# Planes
@@ -64,9 +64,9 @@ module Dimension
 		end
 		
 		def self.revitalise()
-			puts '!!! !!! !!! SUCH SOUCERY !!! !!! !!! SOME ACTION OCCURS'
+			puts '!!! !!! !!! MUCH ADO BOUT SUCH SOURCERY !!! !!! !!! SOME ACTION OCCURS'
 			Dimension::Character.list.values.each do |alt|
-				alt.ap = alt.ap + 1 unless alt.ap > 100
+				alt.ap = alt.ap + 1 unless alt.ap >= 100
 			end	
 		end
 	end
