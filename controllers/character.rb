@@ -25,5 +25,7 @@ post '/character/create' do
 	
 	user.add_character params[:CharName]
 	
+	user.characters[params[:CharName]].respawn
+	
 	redirect to('/character/list')
 end

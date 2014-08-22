@@ -15,13 +15,25 @@ module Dimension
 		attr_accessor :xp
 		attr_accessor :level
 		attr_accessor :cp
+		attr_accessor :id
 		
 		attr_accessor :location
 		
+		def self.list()
+			@@list
+		end
+		
+
 		def initialize(owner, charname)
 			@log = ThreadSafe::Array.new
 			@name = charname
 			@owner = owner
+			
+			@ap = 100
+			@xp = 0
+			@cp = 10
+			@level = 1
+			
 			@@list[@name] = self
 		end
 		
@@ -36,6 +48,7 @@ module Dimension
 			new.xp = values[:Experience]
 			new.level = values[:Level]
 			new.cp = values[:SkillPoints]
+			new.id = values[:CharacterID]
 			new.location = Location.find_by_id values[:LocationID]
 			new.location.arrive new unless new.location == nil
 			return new
@@ -49,6 +62,10 @@ module Dimension
 			@location = Location.find_by_id 1
 			@location.arrive self
 			@hp = 50
+		end
+		
+		def save()
+			return {:CharacterID => @id, :AccountID => @owner.id, :CharName => @name, :ActionPoints => @ap, :HitPoints => @hp, :Experience => @xp, :Level => @level, :SkillPoints => @cp, :LocationID => (@location == nil ? nil : @location.id)}
 		end
 	end
 end

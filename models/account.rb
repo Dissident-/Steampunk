@@ -11,18 +11,29 @@ module Dimension
 		attr_reader :password
 		attr_accessor :email
 		attr_reader :characters
+		attr_reader :id
 		
-		def initialize(newname, password)
+		def self.list()
+			@@list
+		end
+		
+		def id=(id)
+			@id = id
+			@@list_by_id[@id] = self
+		end
+		
+		def initialize(newname, password = nil)
 			@username = newname
 			@@list[@username] = self
 			@characters = {}
-			
-			begin
-				@password = BCrypt::Password.set password unless ENV['OS'] == 'Windows_NT'
-			rescue	
-				@password = password.split(":")
+			if password != nil then
+				begin
+					@password = BCrypt::Password.set password unless ENV['OS'] == 'Windows_NT'
+				rescue	
+					@password = password.split(":")
+				end
+				@password = password if ENV['OS'] == 'Windows_NT'
 			end
-			@password = password if ENV['OS'] == 'Windows_NT'
 		end
 		
 		def add_character(name)
@@ -53,8 +64,16 @@ module Dimension
 		def self.load(values)
 			new = Account.new(values[:Username], values[:Password])
 			new.email = values[:EmailAddress]
-			@@list_by_id[values[:AccountID]] = new
+			new.id = values[:AccountID]
 			return new
+		end
+		
+		def save()
+			return {:AccountID => @id, :Username => @username, :Password => @password, :EmailAddress => @email}
+		end
+		
+		def persist()
+			self.id = DB[:account].insert self.save
 		end
 	end
 end

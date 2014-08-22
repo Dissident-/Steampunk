@@ -12,6 +12,15 @@ module Dimension
 		
 		attr_reader :occupants
 		
+		def self.list()
+			@@list
+		end
+		
+		def id=(id)
+			@id = id
+			@@list_by_id[@id] = self
+		end
+		
 		def initialize(plane, x, y, z, id = nil)
 			@@list << self
 			@x = x
@@ -65,6 +74,10 @@ module Dimension
 			new.name = values[:LocationName]
 			new.description = values[:Description]
 			return new
+		end
+		
+		def save()
+			return {:LocationID => @id, :CoordinateX => @x, :CoordinateY => @y, :CoordinateZ => @z, :PlaneID => @plane.id, :TileTypeID => @type.id, :LocationName => @name, :Description => @description}
 		end
 	end
 end

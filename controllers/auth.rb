@@ -36,6 +36,7 @@ post '/auth/register' do
 		account = Dimension::Account.new params[:Username]
 		account.set_password params[:Password]
 		account.email = params[:Email]
+		account.persist
 		session[:user] = account
 		redirect to('/character/list')
 	end

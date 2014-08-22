@@ -9,6 +9,15 @@ module Dimension
 	
 		attr_reader :id
 		
+		def self.list()
+			@@list
+		end
+		
+		def id=(id)
+			@id = id
+			@@list_by_id[@id] = self
+		end
+		
 		attr_accessor :name
 		
 		def find_location(x, y, z)
@@ -42,6 +51,10 @@ module Dimension
 		def self.load(values)
 			new = Plane.new(values[:PlaneName], values[:PlaneID])
 			return new
+		end
+		
+		def save()
+			return {:PlaneID => @id, :PlaneName => @name }
 		end
 	end
 end

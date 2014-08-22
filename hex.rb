@@ -3,6 +3,7 @@ require 'sinatra'
 require 'thread_safe'
 require 'sequel'
 require 'pp'
+require 'rufus-scheduler'
 
 use Rack::Session::Pool
 require 'haml'
@@ -36,3 +37,13 @@ require_rel 'models'
 require_rel 'helpers'
 
 require_rel 'continuity' unless ENV['OS'] == 'Windows_NT'
+
+scheduler = Rufus::Scheduler.new
+
+scheduler.every '15m', :blocking => true do
+	Dimension::Sourcery.persistence
+end
+
+scheduler.cron '*/15 * * * *', :blocking => true do
+	Dimension::Sourcery.revitalise
+end

@@ -5,6 +5,15 @@ module Dimension
 		
 		@@list = ThreadSafe::Cache.new
 	
+		def self.list()
+			@@list
+		end
+		
+		def id=(id)
+			@id = id
+			@@list_by_id[@id] = self
+		end
+	
 		attr_reader :id
 		
 		attr_accessor :name
@@ -31,6 +40,10 @@ module Dimension
 			new.description = values[:DefaultDescription]
 			new.apcost = values[:APCost]
 			return new
+		end
+		
+		def save()
+			return {:TileTypeID => @id, :TypeName => @name, :Colour => @colour, :DefaultDescription => @description, :APCost => @apcost }
 		end
 	end
 end
