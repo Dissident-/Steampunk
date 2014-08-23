@@ -42,6 +42,8 @@ module Dimension
 			
 			puts '~~~ ~~~ ~~~ OPEN THE DUNGEON DIMENSIONS ~~~ ~~~ ~~~ APOCALYPTICAL ACCOUNTANCY'
 			
+			#Accounts are now saved to the database the moment they are created
+			
 			#Dimension::Account.list.values.each do |account|
 			#	if account.id === nil then
 			#		account.id = DB[:account].insert account.save
@@ -59,6 +61,45 @@ module Dimension
 					DB[:character].where(:CharacterID => alt.id).update(alt.save)
 				end
 			end	
+			
+			puts '*** *** *** OPEN THE DUNGEON DIMENSIONS *** *** *** CATEGORICALLY CATASTROPHIC'
+			
+			Dimension::ItemCategory.list.values.each do |cat|
+				if cat.id === nil then
+					cat.id = DB[:item_category].insert cat.save
+				else
+					DB[:item_category].where(:ItemCategoryID => cat.id).update(cat.save)
+				end
+			end	
+			
+			puts '/// /// /// OPEN THE DUNGEON DIMENSIONS \\\ \\\ \\\ TYPICALLY TYPED'
+			
+			Dimension::ItemType.list.values.each do |typ|
+				if typ.id === nil then
+					typ.id = DB[:item_type].insert typ.save
+				else
+					DB[:item_type].where(:ItemTypeID => typ.id).update(typ.save)
+				end
+			end	
+			
+			puts '^^^ ^^^ ^^^ OPEN THE DUNGEON DIMENSIONS ^^^ ^^^ ^^^ ITEMISING ITEMISATION'
+			
+			Dimension::Item.list.each do |item|
+				if item.id === nil then
+					item.id = DB[:item_instance].insert item.save
+				else
+					DB[:item_instance].where(:ItemInstanceID => item.id).update(item.save)
+				end
+			end	
+
+			puts 'O_o O_o O_o OPEN THE DUNGEON DIMENSIONS o_O o_O o_O SPREADING RUMOURS'
+			
+			Dimension::Message.unsaved.list.each do |msg|
+					msg.id = DB[:activity_log].insert msg.save
+					msg.listeners.each do |rec|
+						DB[:activity_log_reader].insert Hash.new({:ActivityLogID => msg.id, :CharacterID => rec.id})
+					end
+			end				
 			
 			puts '### ### ### SHUT THE DUNGEON DIMENSIONS ### ### ### OUT OF CHEESE ERROR'
 		end

@@ -38,6 +38,8 @@ require_rel 'helpers'
 
 require_rel 'continuity' unless ENV['OS'] == 'Windows_NT'
 
+Dimension::Wizzardry.incantation
+
 scheduler = Rufus::Scheduler.new
 
 scheduler.every '15m', :blocking => true do

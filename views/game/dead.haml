@@ -52,3 +52,14 @@
 				!= '<img style="position:absolute;bottom:0px;left:0px" src="/img/person.png"/>' if tile == 13
 				!= "</div>"
 		#inventory
+			#inventory_accordion
+				- character.inventory_by_category.keys.each do |cat|
+					- unless cat.name == "Hidden" then
+						%h3
+							!= cat.name
+						%div(style="padding-top:0px;padding-bottom:0px")
+							%ul
+								- character.inventory_by_category[cat].each do |item|
+									%li
+										!= item.type.name + ' '
+										!= HTML.Link('/game/drop/' + item.id.to_s, '<img src="/img/turd20.png" alt="Drop" title="Drop" />', '', '#page_content nohash')

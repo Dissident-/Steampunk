@@ -2,9 +2,7 @@ module Dimension
 	class Character
 	
 		@@list = ThreadSafe::Cache.new
-		
-		
-	
+		@@list_by_id = ThreadSafe::Cache.new	
 		attr_accessor :log
 		
 		attr_reader :owner
@@ -15,12 +13,23 @@ module Dimension
 		attr_accessor :xp
 		attr_accessor :level
 		attr_accessor :cp
-		attr_accessor :id
-		
+		attr_reader :id
+		attr_reader :inventory
+		attr_reader :inventory_by_category
 		attr_accessor :location
 		
 		def self.list()
 			@@list
+		end
+	
+		def id=(id)
+			@id = id
+			@@list_by_id[@id] = self unless id === nil
+		end
+		
+		def obtain(item)
+			@inventory << item
+			@inventory_by_category[item.type.category] << item
 		end
 		
 
@@ -34,11 +43,20 @@ module Dimension
 			@cp = 10
 			@level = 1
 			
+			@inventory = ThreadSafe::Array.new
+			@inventory_by_category = ThreadSafe::Cache.new{|hash, key| hash[key] = ThreadSafe::Array.new}
+			
 			@@list[@name] = self
+			
 		end
+		
 		
 		def self.find(name)
 			return @@list[name]
+		end
+		
+		def self.find_by_id(name)
+			return @@list_by_id[name]
 		end
 		
 		def self.load(values)

@@ -78,3 +78,14 @@
 						!= HTML.Link('/game/move/' + tile.id.to_s, 'Move', 'button move_button', '#page_content nohash') if (character.location.x - tile.x).abs < 2 and (character.location.y - tile.y).abs < 2
 					!= '</div>'
 		#inventory
+			#inventory_accordion
+				- character.inventory_by_category.keys.each do |cat|
+					- unless cat.name == "Hidden" then
+						%h3
+							!= cat.name
+						%div(style="padding-top:0px;padding-bottom:0px")
+							%ul
+								- character.inventory_by_category[cat].each do |item|
+									%li
+										!= item.type.name + ' '
+										!= HTML.Link('/game/drop/' + item.id.to_s, '<img src="/img/turd20.png" alt="Drop" title="Drop" />', '', '#page_content nohash')
