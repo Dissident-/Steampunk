@@ -72,7 +72,7 @@ module Dimension
 				end
 			end	
 			
-			puts '/// /// /// OPEN THE DUNGEON DIMENSIONS \\\ \\\ \\\ TYPICALLY TYPED'
+			puts '/// /// /// OPEN THE DUNGEON DIMENSIONS \\\\\\ \\\\\\ \\\\\\ TYPICALLY TYPED'
 			
 			Dimension::ItemType.list.values.each do |typ|
 				if typ.id === nil then
