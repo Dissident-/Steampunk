@@ -10,7 +10,6 @@ module Dimension
 		@@unsaved = ThreadSafe::Array.new
 		
 		attr_accessor :listeners
-		@listeners = ThreadSafe::Array.new
 	
 		def id=(id)
 			@id = id
@@ -22,15 +21,14 @@ module Dimension
 			return {:CharacterID => @source, :Activity => @message, :Timestamp => @timestamp}
 		end
 	
-		def send(message, recipients, sender = nil)
+		def self.send(message, recipients, sender = nil)
 		
 			msg = Message.new(message, Time.now)
 			msg.source = sender.id unless sender === nil
 		
 			recipients.each do |recipient|
-				char = Character.find recipient
-				char.add_message msg unless char === nil 
-				msg.listeners << char unless char === nil
+				recipient.add_message msg
+				msg.listeners << recipient
 			end
 			
 			@@unsaved << msg
@@ -41,6 +39,7 @@ module Dimension
 			@message = message
 			@id = id
 			@@list[id] = self unless id === nil
+			@listeners = ThreadSafe::Array.new
 		end
 		
 		def self.find_by_id(id)
