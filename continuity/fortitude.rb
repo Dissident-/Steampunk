@@ -94,7 +94,7 @@ module Dimension
 
 			puts 'O_o O_o O_o OPEN THE DUNGEON DIMENSIONS o_O o_O o_O SPREADING RUMOURS'
 			
-			Dimension::Message.unsaved.list.each do |msg|
+			Dimension::Message.unsaved.each do |msg|
 					msg.id = DB[:activity_log].insert msg.save
 					msg.listeners.each do |rec|
 						DB[:activity_log_reader].insert Hash.new({:ActivityLogID => msg.id, :CharacterID => rec.id})
