@@ -43,14 +43,18 @@ get '/game/move/:id' do
 	@source = @character.location
 	@dest = Dimension::Location.find_by_id params[:id].to_i
 	if @dest === nil or @source === nil then
-		render_game(minor_warnings: "Can't move to or from nowhere!")
+		render_game(minor_warnings: "You can't move to or from nowhere!")
 	else
 		if @character.ap < 1 then
 			render_game(minor_warnings: "You are too tired to move!")
 		else
-			@character.ap = @character.ap - 1
-			@character.move @dest
-			render_game
+			if @source.plane == @dest.plane and (((@source.x - @dest.x).abs < 2 and (@source.y - @dest.y).abs < 2 and @source.z - @dest.z == 0) or (@source.x - @dest.x == 0 and @source.y - @dest.y == 0 and (@source.z - @dest.z).abs == 1)) then
+				@character.ap = @character.ap - 1
+				@character.move @dest
+				render_game
+			else
+				render_game(minor_warnings: "You can only move to adjacent locations!")
+			end
 		end
 	end
 end
