@@ -41,14 +41,14 @@
 				!= character.location.name + ', ' + character.location.type.name + ' (' + character.location.x.to_s + ', ' + character.location.y.to_s + ', ' + character.location.plane.name + ')'
 		%p
 			!= character.location.description
-		- if character.location.occupants.keys.count > 1
+		- if character.location.occupants.count > 1
 			%p
-				You can see #{(character.location.occupants.keys.count - 1).to_s} other #{character.location.occupants.keys.count == 2 ? 'person' : 'people'} at this location:
+				You can see #{(character.location.occupants.count - 1).to_s} other #{character.location.occupants.count == 2 ? 'person' : 'people'} at this location:
 			%ul
-				- character.location.occupants.keys.sort.each do |key|
-					- if character.name != key
+				- character.location.occupants.each do |occupant|
+					- if character.name != occupant.name
 						%li
-							!= HTML.Link('/character/profile/' + key, key)
+							!= HTML.Link('/character/profile/' + occupant.name, occupant.name)
 		!= HTML.Link('/game/search', 'Search', 'button margin-10', '#page_content nohash')
 		
 		
@@ -71,7 +71,7 @@
 					!= "</div>"
 				- else
 					!= "<div class=\"maptile#{ curtile == 0 ? ' clear-left' : '' }\" style=\"background-color:#{tile.type.colour}\">#{tile.name == nil ? tile.type.name : tile.name}"
-					!= '<img style="position:absolute;bottom:0px;right:0px" src="/img/otherperson.png"/>' if tile.occupants.keys.count > (character.location == tile ? 1 : 0)
+					!= '<img style="position:absolute;bottom:0px;right:0px" src="/img/otherperson.png"/>' if tile.occupants.count > (character.location == tile ? 1 : 0)
 					- if character.location == tile
 						!= '<img style="position:absolute;bottom:0px;left:0px" src="/img/person.png"/>' if character.location == tile
 					- else

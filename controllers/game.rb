@@ -1,10 +1,10 @@
 helpers do
-	def render_game()
+	def render_game(stuff = Hash.new)
 		@character = session[:character]
 		if @character.hp > 0 then
-			haml :index, :locals => @viewdata.merge!({:content => :'game/index', :data => { :character => @character }})
+			haml :index, :locals => @viewdata.merge!({:content => :'game/index', :data => { :character => @character, :minor_warnings => stuff[:minor_warnings], :minor_actions => stuff[:minor_actions] }})
 		else
-			haml :index, :locals => @viewdata.merge!({:content => :'game/dead', :data => { :character => @character }})
+			haml :index, :locals => @viewdata.merge!({:content => :'game/dead', :data => { :character => @character, :minor_warnings => stuff[:minor_warnings], :minor_actions => stuff[:minor_actions] }})
 		end
 	end
 end
@@ -31,9 +31,26 @@ end
 
 post '/game/speak' do
 	if session[:character].hp <= 0 then
-		haml :index, :locals => @viewdata.merge!({:content => :'game/index', :data => { :character => @character, :minor_warnings => "You can't talk while dead!" }})
+		render_game(minor_warnings: "You can't talk while dead!")
 	else
 		Dimension::Message.send('<a href="/character/profile/' + session[:character].name + '">' + session[:character].name + '</a> said \'' +  Rack::Utils.escape_html(params[:speech]) + '\'', session[:character].location.occupants.values, session[:character])
 		render_game
+	end
+end
+
+get '/game/move/:id' do
+	@character = session[:character]
+	@source = @character.location
+	@dest = Dimension::Location.find_by_id params[:id].to_i
+	if @dest === nil or @source === nil then
+		render_game(minor_warnings: "Can't move to or from nowhere!")
+	else
+		if @character.ap < 1 then
+			render_game(minor_warnings: "You are too tired to move!")
+		else
+			@character.ap = @character.ap - 1
+			@character.move @dest
+			render_game
+		end
 	end
 end

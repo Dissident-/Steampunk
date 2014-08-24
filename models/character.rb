@@ -82,6 +82,12 @@ module Dimension
 			@hp = 50
 		end
 		
+		def move(destination)
+			@location.depart self
+			@location = destination
+			@location.arrive self
+		end
+		
 		def save()
 			return {:CharacterID => @id, :AccountID => @owner.id, :CharName => @name, :ActionPoints => @ap, :HitPoints => @hp, :Experience => @xp, :Level => @level, :SkillPoints => @cp, :LocationID => (@location == nil ? nil : @location.id)}
 		end

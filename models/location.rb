@@ -28,9 +28,9 @@ module Dimension
 			@z = z
 			@plane = plane
 			plane.add_location self
-			@@list_by_id[id] = self unless id == nil
 			@id = id
-			@occupants = ThreadSafe::Cache.new
+			@@list_by_id[id] = self unless id === nil
+			@occupants = ThreadSafe::Array.new
 		end
 		
 		def surrounds(area = 2)
@@ -44,11 +44,12 @@ module Dimension
 		end
 		
 		def arrive(char)
-			@occupants[char.name] = char
+			@occupants << char
+			@occupants.sort { |x, y| x.name <=> y.name }
 		end
 		
 		def depart(char)
-			@occupants.delete! char.name
+			@occupants.delete char
 		end
 		
 		def self.find_by_id(id)

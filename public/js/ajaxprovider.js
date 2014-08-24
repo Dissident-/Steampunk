@@ -61,7 +61,7 @@ jQuery.extend
                     type: 'get',
                     dataType: 'html',
                     async: false,
-                    cache: false,
+                    /*cache: false,*/
                     success: function(data) 
                     {
                         result = data;
@@ -85,7 +85,7 @@ if(History.enabled)
 			$.ajax({
 				type:'GET',
 				url: targetURL,
-				data: { ajax: 1, target: targetElement},
+				data: targetElement == '#page_content' ? {} :{ target: targetElement},
 				beforeSend: function(){
 					savePanels();
 					addMarker(targetElement, targetURL);
@@ -177,7 +177,7 @@ if(History.enabled)
 			$.ajax({
 				type:'GET',
 				url: targetURL,
-				data: { ajax: 1, target: targetElement},
+				data: targetElement == '#page_content' ? {} : { target: targetElement},
 				beforeSend: function(){
 					addMarker(targetElement, targetURL);
 					//$(targetElement).hide('fade');
@@ -328,11 +328,11 @@ $(document).ready(function(){
 		$('head title').html(APPNAME);
 	}
 
-
+	/*
 	$.ajaxSetup ({
 		cache: false
 	}); 
-	
+	*/
 	$(document).ajaxError(function(event, jqXHR, ajaxSettings, thrownError) {
 		$('#ajax_error').attr('title', thrownError);
 		$('#ajax_error').html(jqXHR.responseText);
@@ -425,7 +425,7 @@ function ajaxURL(data)
 	$.ajax({
 		type:'GET',
 		url: targetURL,
-		data: { ajax: 1, target: targetElement},
+		data: targetElement == '#page_content' ? {} :{ target: targetElement},
 		beforeSend: function(){
 			addMarker(targetElement, targetURL);
 			//$(targetElement).hide('fade');
@@ -506,7 +506,7 @@ function ajaxForm(data)
 	targetSubmitURL = $(data).attr('action');
 	$.ajax({
 		type:'POST',
-		url: targetSubmitURL + '?ajax=1&target=' + targetElement,
+		url: targetSubmitURL + (targetElement == '#page_content' ? '' : '?target=' + targetElement),
 		data: $(data).serialize(),
 		beforeSend: function() {
 			addMarker(targetElement, targetSubmitURL);
