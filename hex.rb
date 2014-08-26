@@ -36,7 +36,7 @@ require_rel 'controllers'
 require_rel 'models'
 require_rel 'helpers'
 
-require_rel 'continuity' unless ENV['OS'] == 'Windows_NT'
+require_rel 'continuity'
 
 Dimension::Wizzardry.incantation
 

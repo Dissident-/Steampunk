@@ -28,11 +28,10 @@ module Dimension
 			@characters = {}
 			if password != nil then
 				begin
-					@password = BCrypt::Password.set password unless ENV['OS'] == 'Windows_NT'
+					@password = BCrypt::Password.set password
 				rescue	
 					@password = password.split(":")
 				end
-				@password = password if ENV['OS'] == 'Windows_NT'
 			end
 		end
 		

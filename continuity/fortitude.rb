@@ -1,4 +1,4 @@
-require 'jdbc/mysql'
+require 'jdbc/mysql' unless ENV['OS'] == 'Windows_NT'
 require 'sequel'
 
 module Dimension
