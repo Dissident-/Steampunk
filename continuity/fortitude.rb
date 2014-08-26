@@ -5,6 +5,14 @@ module Dimension
 	class Sourcery
 		def self.persistence()
 		
+			# Due to an issuewith rufus on Windows, it eems to trigger a save tick straightaway during startup
+			if ENV['OS'] == 'Windows_NT' then
+				unless defined? @@skipped then
+					@@skipped = true
+					return
+				end
+			end
+		
 			puts '*** *** *** SEEK THE DUNGEON DIMENSIONS *** *** *** SAVES ON A PLANE'
 			
 			
