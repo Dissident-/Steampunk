@@ -33,7 +33,7 @@ post '/game/speak' do
 	if session[:character].hp <= 0 then
 		render_game(minor_warnings: "You can't talk while dead!")
 	else
-		Dimension::Message.send('<a href="/character/profile/' + session[:character].name + '">' + session[:character].name + '</a> said \'' +  Rack::Utils.escape_html(params[:speech]) + '\'', session[:character].location.occupants.values, session[:character])
+		Dimension::Message.send('<a href="/character/profile/' + session[:character].name + '">' + session[:character].name + '</a> said \'' +  Rack::Utils.escape_html(params[:speech]) + '\'', session[:character].location.occupants, session[:character])
 		render_game
 	end
 end
