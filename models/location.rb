@@ -2,6 +2,7 @@ module Dimension
 	class Location
 	
 		@@list = ThreadSafe::Array.new
+		@@list_by_object_id = ThreadSafe::Cache.new
 		@@list_by_id = ThreadSafe::Cache.new
 		
 		attr_reader :id
@@ -30,6 +31,7 @@ module Dimension
 			plane.add_location self
 			@id = id
 			@@list_by_id[id] = self unless id === nil
+			@@list_by_object_id[self.object_id] = self
 			@occupants = ThreadSafe::Array.new
 		end
 		
@@ -54,6 +56,10 @@ module Dimension
 		
 		def self.find_by_id(id)
 			return @@list_by_id[id]
+		end
+		
+		def self.find(id)
+			return @@list_by_object_id[id]
 		end
 		
 		def check_password(password)

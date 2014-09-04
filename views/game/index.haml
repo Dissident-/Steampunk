@@ -75,7 +75,7 @@
 					- if character.location == tile
 						!= '<img style="position:absolute;bottom:0px;left:0px" src="/img/person.png"/>' if character.location == tile
 					- else
-						!= HTML.Link('/game/move/' + tile.id.to_s, 'Move', 'button move_button', '#page_content nohash') if (character.location.x - tile.x).abs < 2 and (character.location.y - tile.y).abs < 2
+						!= HTML.Link('/game/move/' + tile.object_id.to_s, 'Move', 'button move_button', '#page_content nohash') if (character.location.x - tile.x).abs < 2 and (character.location.y - tile.y).abs < 2
 					!= '</div>'
 		#inventory
 			#inventory_accordion

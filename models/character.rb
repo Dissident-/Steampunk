@@ -1,8 +1,9 @@
 module Dimension
 	class Character
 	
-		@@list = ThreadSafe::Cache.new
-		@@list_by_id = ThreadSafe::Cache.new	
+		@@list = ThreadSafe::Cache.new # by object id
+		@@list_by_name = ThreadSafe::Cache.new # by name
+		@@list_by_id = ThreadSafe::Cache.new # by db id
 		attr_accessor :log
 		
 		attr_reader :owner
@@ -19,7 +20,7 @@ module Dimension
 		attr_accessor :location
 		
 		def self.list()
-			@@list
+			@@list_by_name
 		end
 	
 		def id=(id)
@@ -46,13 +47,16 @@ module Dimension
 			@inventory = ThreadSafe::Array.new
 			@inventory_by_category = ThreadSafe::Cache.new{|hash, key| hash[key] = ThreadSafe::Array.new}
 			
-			@@list[@name] = self
-			
+			@@list_by_name[@name] = self
+			@@list[self.object_id] = self
 		end
 		
+		def self.find(objid)
+			return @@list[objid]
+		end
 		
-		def self.find(name)
-			return @@list[name]
+		def self.find_by_name(name)
+			return @@list_by_name[name]
 		end
 		
 		def self.find_by_id(name)

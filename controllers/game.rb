@@ -41,7 +41,7 @@ end
 get '/game/move/:id' do
 	@character = session[:character]
 	@source = @character.location
-	@dest = Dimension::Location.find_by_id params[:id].to_i
+	@dest = Dimension::Location.find params[:id].to_i
 	if @dest === nil or @source === nil then
 		render_game(minor_warnings: "You can't move to or from nowhere!")
 	else
