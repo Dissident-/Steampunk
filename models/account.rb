@@ -7,6 +7,7 @@ module Dimension
 		@@list = ThreadSafe::Cache.new
 		@@list_by_id = ThreadSafe::Cache.new
 		
+		attr_reader :auth_token
 		attr_reader :username
 		attr_reader :password
 		attr_accessor :email
@@ -23,6 +24,7 @@ module Dimension
 		end
 		
 		def initialize(newname, password = nil)
+			@auth_token = SecureRandom.base64
 			@username = newname
 			@@list[@username] = self
 			@characters = {}

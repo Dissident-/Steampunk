@@ -4,6 +4,7 @@ module Dimension
 		@@list = ThreadSafe::Cache.new # by object id
 		@@list_by_name = ThreadSafe::Cache.new # by name
 		@@list_by_id = ThreadSafe::Cache.new # by db id
+		
 		attr_accessor :log
 		
 		attr_reader :owner
@@ -18,6 +19,20 @@ module Dimension
 		attr_reader :inventory
 		attr_reader :inventory_by_category
 		attr_accessor :location
+		
+		def attach_socket(ws)
+			@sockets << ws unless @sockets.include? ws
+		end
+		
+		def detach_socket(ws)
+			@sockets.delete ws
+		end
+		
+		def send_socket(message)
+			@sockets.each do |ws|
+				ws.send(message)
+			end
+		end
 		
 		def self.list()
 			@@list_by_name
@@ -35,6 +50,7 @@ module Dimension
 		
 
 		def initialize(owner, charname)
+			@sockets = ThreadSafe::Array.new
 			@log = ThreadSafe::Array.new
 			@name = charname
 			@owner = owner
@@ -78,6 +94,7 @@ module Dimension
 		
 		def add_message(message)
 			@log << message
+			self.send_socket({'type' => 'log', 'message' => message.timestamp.getutc.strftime("%Y-%m-%d %H:%M:%S") + ' ' + message.message}.to_json)
 		end
 		
 		def respawn()

@@ -1,3 +1,10 @@
+.ui-helper-hidden
+	%input#ws_authentication_token(type="hidden" name="ws_authentication_token" value="#{character.owner.auth_token}")
+	%input#ws_character(type="hidden" name="ws_character" value="#{character.name}")
+	:plain
+		<script>
+		deWorde.connect();
+		</script>
 %div
 	.ui-corner-left.ui-widget-content.padding-10(style="float:left")
 		!= HTML::Link('/character/profile/' + character.name, character.name)
@@ -32,10 +39,9 @@
 						!= log.timestamp.getutc.strftime("%Y-%m-%d %H:%M:%S") + ' ' + log.message
 		
 		.padding-10
-			!= HTML.Form('/game/speak', 'form_speak')
 			%input(type="text" name="speech" value="" style="margin-right:1%;display:inline;width:80%;")
-			!= HTML.Submit("Speak")	
-			!= HTML.Form
+			%button.button(onclick="deWorde.sendChatMessage($('input[name=speech]').val()); $('input[name=speech]').val(''); return false;")
+				Speak
 		%p
 			%b
 				!= character.location.name + ', ' + character.location.type.name + ' (' + character.location.x.to_s + ', ' + character.location.y.to_s + ', ' + character.location.plane.name + ')'
