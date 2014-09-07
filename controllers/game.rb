@@ -35,7 +35,7 @@ class Dungeon < Sinatra::Application
 		if session[:character].hp <= 0 then
 			render_game(minor_warnings: "You can't talk while dead!")
 		else
-			Dimension::Message.send('<a href="/character/profile/' + session[:character].name + '">' + session[:character].name + '</a> said \'' +  Rack::Utils.escape_html(params[:message]) + '\'', session[:character].location.occupants, session[:character])
+			session[:character].say params[:message]
 			render_game
 		end
 	end

@@ -97,6 +97,15 @@ module Dimension
 			self.send_socket({'type' => 'log', 'message' => message.timestamp.getutc.strftime("%Y-%m-%d %H:%M:%S") + ' ' + message.message}.to_json)
 		end
 		
+		def say(message)
+			message = Rack::Utils.escape_html(message)
+			if message.start_with?('/me ', '/ME ') then
+				Dimension::Message.send('<a data-ajax="#page_content" href="/character/profile/' + self.name + '">' + self.name + '</a> \'' +  message[4..-1] + '\'', self.location.occupants, self)
+			else
+				Dimension::Message.send('<a data-ajax="#page_content" href="/character/profile/' + self.name + '">' + self.name + '</a> said \'' +  message + '\'', self.location.occupants, self)
+			end
+		end
+		
 		def respawn()
 			@location = Location.find_by_id 1
 			@location.arrive self

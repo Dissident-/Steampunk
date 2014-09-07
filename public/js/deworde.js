@@ -2,6 +2,7 @@ var deWorde = new function(){
 
 	this.socket = null;
 	this.running = false;
+	this.authjson = null;
 	this.sendChatMessage = function(themessage)
 	{
 		packet = {type: 'speech', message: themessage}
@@ -10,22 +11,15 @@ var deWorde = new function(){
 	
 	
 	this.connect = function()
-	{	
-		if(deWorde.socket != null )
-		{
-			packet = {type:'authenticate', token: $('#ws_authentication_token').attr('value'), character: $('#ws_character').attr('value')}
-			deWorde.socket.send(JSON.stringify(packet));
-		}
-		
+	{			
 		Socket = window.MozWebSocket || window.WebSocket;
 		socket = new Socket('ws://' + location.hostname + ':4020/ws', "dungeon"),
-		
-				
+			
 		socket.addEventListener('open', function() {
 
-			packet = {type:'authenticate', token: $('#ws_authentication_token').attr('value'), character: $('#ws_character').attr('value')}
 			deWorde.running = true;
-			this.send(JSON.stringify(packet));
+			if(deWorde.authjson != null) deWorde.socket.send(deWorde.authjson);
+			
 		});
 
 		socket.onerror = function(event) {
@@ -49,7 +43,15 @@ var deWorde = new function(){
 		
 	};
 	
-
-	
+	this.auth = function(authpacket){
+		authpacket = JSON.stringify(authpacket)	
+		if(deWorde.socket != null && deWorde.running == true && authpacket != deWorde.authjson)
+		{
+			deWorde.socket.send(authpacket);
+		}
+		deWorde.authjson = authpacket;
+	}
 	
 }
+
+deWorde.connect();

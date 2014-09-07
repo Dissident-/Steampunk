@@ -73,8 +73,6 @@ end
 			
 			msg = JSON(event.data)
 			
-			puts event.data
-			
 			Dimension::SocketHandler.handle(ws, msg)
 				
 			rescue JSON::ParserError => ex

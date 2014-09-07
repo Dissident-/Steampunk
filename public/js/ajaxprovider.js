@@ -402,40 +402,30 @@ function ajaxURL(data)
 	{
 		return true;
 	}
-	if(data.rel == 'no_ajax')
+	ajax = $(data).attr('data-ajax');
+	if(ajax == 'no_ajax')
 	{
 		return true;
-	}
-	// Throttle actions to prevent double clicking (probably not necessary in a browser game, but let's piss people off anyway)
-	if((new Date().getTime()) - lastAction < 500 && lastActionData == data)
-	{
-		return false;
-	}
-	else
-	{
-		lastAction = (new Date().getTime());
-		lastActionData = data;
 	}
 	if(data.href.slice(data.href.length - 1) == '#')
 	{
 		return false;
 	}
-	//targetElement = data.rel;
 	targetElement = '#page_content';
 	useHashChange = true;
 	
 	
-	if(data.rel.length > 1)
+	if(ajax != null && ajax.length > 1)
 	{
-		if(data.rel.indexOf(' ') != -1)
+		if(ajax.indexOf(' ') != -1)
 		{
-			targetBits = data.rel.split(' ');
+			targetBits = ajax.split(' ');
 			targetElement = targetBits[0];
 			if(targetBits[1] == 'nohash') useHashChange = false;
 		}
 		else
 		{
-			targetElement = data.rel;
+			targetElement = ajax;
 		}
 	}
 	targetURL = data.href;
@@ -527,9 +517,9 @@ var targetSubmitURL = '';
 
 function ajaxForm(data)
 {
-	if($(data + ' .return_target').length > 0 && $($(data + ' .return_target').html()).length > 0)
+	if($(data).attr('data-returntarget').length > 0)
 	{
-		targetElement = $(data + ' .return_target').html();
+		targetElement = $(data).attr('data-returntarget');
 	}
 	else
 	{

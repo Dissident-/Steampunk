@@ -34,6 +34,7 @@ module Dimension
 		def self.handle(socket, message)
 			begin
 			
+				puts 'Socket IN: ' + message.inspect
 			
 				case message["type"]
 				when 'authenticate'
@@ -43,7 +44,7 @@ module Dimension
 				when 'speech'
 					return if @@socket_sessions[socket] === nil or @@socket_sessions[socket][:character] === nil
 					character = @@socket_sessions[socket][:character] 
-					Dimension::Message.send('<a href="/character/profile/' + character.name + '">' + character.name + '</a> said \'' +  Rack::Utils.escape_html(message['message']) + '\'', character.location.occupants, character)
+					character.say message['message']
 				else
 					socket.send({'type' => 'error', 'message' => 'Unknown message type!'}.to_json)
 				end

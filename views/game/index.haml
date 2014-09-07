@@ -1,10 +1,8 @@
-.ui-helper-hidden
-	%input#ws_authentication_token(type="hidden" name="ws_authentication_token" value="#{character.owner.auth_token}")
-	%input#ws_character(type="hidden" name="ws_character" value="#{character.name}")
-	:plain
-		<script>
-		deWorde.connect();
-		</script>
+:plain
+	<script>
+	authjson = #{ { :type => 'authenticate', :token => character.owner.auth_token, :character => character.name }.to_json };
+	if(deWorde.authjson != authjson) deWorde.auth(authjson);
+	</script>
 %div
 	.ui-corner-left.ui-widget-content.padding-10(style="float:left")
 		!= HTML::Link('/character/profile/' + character.name, character.name)

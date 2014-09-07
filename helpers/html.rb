@@ -2,11 +2,12 @@ class Dungeon < Sinatra::Application
 	module HTML
 		module_function
 
-		def Link(url, text, classes = "", rel = "", style = "", attrs = {})
-			rel = "no_ajax" if rel == false 
+		def Link(url, text, classes = "", ajaxtarget = "", style = "", attrs = {})
+			ajaxtarget = "no_ajax" if ajaxtarget == false 
+			ajaxtarget = "#page_content" if ajaxtarget == ""
 			link = "<a href=\"#{url}\""
 			link = link + " class=\"#{classes}\"" unless classes == "" or classes === nil
-			link = link + " rel=\"#{rel}\"" unless rel == "" or rel === nil
+			link = link + " data-ajax=\"#{ajaxtarget}\"" unless ajaxtarget == "" or ajaxtarget === nil
 			link = link + " style=\"#{style}\"" unless style == "" or style === nil
 			link = link + " " + attrs.map{|k,v| "#{k}=\"#{v}\""}.join(' ')
 			link = link + ">#{text}</a>"
@@ -52,7 +53,7 @@ class Dungeon < Sinatra::Application
 		def Form(url = nil, id = nil, return_target = nil, attrs = {})
 			return_target = "#page_content" if return_target === nil
 			return "</form>" if url == nil
-			return "<form action=\"#{url}\" id=\"#{id}\" method=\"POST\" #{attrs.map{|k,v| "#{k}=\"#{v}\""}.join(' ')} ><span class=\"return_target ui-helper-hidden\" >#{return_target}</span>" unless return_target === false
+			return "<form action=\"#{url}\" id=\"#{id}\" data-returntarget=\"#{return_target}\" method=\"POST\" #{attrs.map{|k,v| "#{k}=\"#{v}\""}.join(' ')} >" unless return_target === false
 			return "<form action=\"#{url}\" id=\"#{id}\" method=\"POST\" #{attrs.map{|k,v| "#{k}=\"#{v}\""}.join(' ')} >"
 		end
 	end
