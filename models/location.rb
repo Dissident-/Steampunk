@@ -47,7 +47,7 @@ module Dimension
 		
 		def arrive(char)
 			@occupants << char
-			@occupants.sort { |x, y| x.name <=> y.name }
+			@occupants.sort! { |x, y| x.name <=> y.name }
 		end
 		
 		def depart(char)
@@ -60,19 +60,6 @@ module Dimension
 		
 		def self.find(id)
 			return @@list_by_object_id[id]
-		end
-		
-		def check_password(password)
-			if @password.kind_of?(Array) then
-				return Digest::MD5.hexdigest(password + @password[1]) == @password[0]
-			else
-				return @password == password
-			end
-		end
-		
-		def set_password(password)
-			@password = BCrypt::Password.create password unless ENV['OS'] == 'Windows_NT'
-			@password = password if ENV['OS'] == 'Windows_NT'
 		end
 		
 		def self.load(values)

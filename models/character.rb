@@ -11,7 +11,10 @@ module Dimension
 		
 		attr_accessor :name
 		attr_accessor :hp
+		
 		attr_accessor :ap
+		
+		
 		attr_accessor :xp
 		attr_accessor :level
 		attr_accessor :cp
@@ -114,8 +117,74 @@ module Dimension
 		
 		def move(destination)
 			@location.depart self
+			oldlocation = @location			
 			@location = destination
 			@location.arrive self
+			
+			Thread.new do
+				oldoccupance = oldlocation.occupants.count
+				
+				if oldoccupance > 0 then
+					# Inform occupants of departure
+					packet = {'type' => 'occupants', 'list' => oldlocation.occupants.map { |r| Hash['name' => r.name] } }.to_json
+					oldlocation.occupants.each do |char|
+						char.send_socket(packet)
+					end
+				else # inform area of emptiness
+					people = []
+					oldlocation.surrounds.each do |loc|
+						unless loc === nil then
+							people.concat(loc.occupants)
+						end
+					end
+					packet = {'type' => 'remoteoccupance', 'mapid' => oldlocation.object_id, 'occupied' => 0}.to_json
+					people.each do |char|
+						char.send_socket(packet) unless char == self
+					end
+				end
+			end
+			Thread.new do		
+				newoccupance = @location.occupants.count
+				if newoccupance > 1 then
+					# Inform occupants of arrival
+					packet = {'type' => 'occupants', 'list' => @location.occupants.map { |r| Hash['name' => r.name] }}.to_json
+					@location.occupants.each do |char|
+						char.send_socket(packet)
+					end
+				else # inform area of arrival
+					people = []
+					@location.surrounds.each do |loc|
+						unless loc === nil then
+							people.concat(loc.occupants)
+						end
+					end
+					packet = {'type' => 'remoteoccupance', 'mapid' => @location.object_id, 'occupied' => 1}.to_json
+					people.each do |char|
+						char.send_socket(packet) unless char == self
+					end
+				end
+			end
+			
+			
+	
+		end
+		
+		def attempt_move(dest)
+			if dest === nil or @location === nil then
+				return {:message => "You can't move to or from nowhere!", :success => false}
+			else
+				if @ap < 1 then
+					return {:message => "You are too tired to move!", :success => false}
+				else
+					if @location.plane == dest.plane and (((@location.x - dest.x).abs < 2 and (@location.y - dest.y).abs < 2 and @location.z - dest.z == 0) or (@location.x - dest.x == 0 and @location.y - dest.y == 0 and (@location.z - dest.z).abs == 1)) then
+						@ap = @ap - 1
+						self.move dest
+						return {:success => true}
+					else
+						return {:message => "You can only move to adjacent locations!", :success => false}
+					end
+				end
+			end
 		end
 		
 		def save()

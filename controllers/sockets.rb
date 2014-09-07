@@ -45,6 +45,16 @@ module Dimension
 					return if @@socket_sessions[socket] === nil or @@socket_sessions[socket][:character] === nil
 					character = @@socket_sessions[socket][:character] 
 					character.say message['message']
+				when 'move'
+					return if @@socket_sessions[socket] === nil or @@socket_sessions[socket][:character] === nil
+					character = @@socket_sessions[socket][:character]
+					dest = Dimension::Location.find message['to'].to_i
+					result = character.attempt_move(dest)
+					if result[:success] === true then
+						socket.send({'type' => 'vitals', 'hp' => character.hp.to_s, 'ap' => character.ap.to_s, 'xp' => character.xp.to_s, 'cp' => character.cp.to_s, 'level' => character.level.to_s}.to_json)
+					else
+						socket.send({'type' => 'log', 'message' => result[:message]}.to_json)
+					end
 				else
 					socket.send({'type' => 'error', 'message' => 'Unknown message type!'}.to_json)
 				end

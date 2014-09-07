@@ -3,18 +3,18 @@
 	authjson = #{ { :type => 'authenticate', :token => character.owner.auth_token, :character => character.name }.to_json };
 	if(deWorde.authjson != authjson) deWorde.auth(authjson);
 	</script>
-%div
+#hud_player_vitals
 	.ui-corner-left.ui-widget-content.padding-10(style="float:left")
 		!= HTML::Link('/character/profile/' + character.name, character.name)
-	.ui-state-error.padding-10(style="float:left")
+	.hp.ui-state-error.padding-10(style="float:left" data-value="#{character.hp.to_s}" data-prefix="" data-suffix="HP")
 		!= character.hp.to_s + 'HP'
-	.ui-state-highlight.padding-10(style="float:left")
+	.ap.ui-state-highlight.padding-10(style="float:left" data-value="#{character.ap.to_s}" data-prefix=""  data-suffix="AP")
 		!= character.ap.to_s + 'AP'
-	.ui-widget-content.padding-10(style="float:left")
+	.xp.ui-widget-content.padding-10(style="float:left" data-value="#{character.xp.to_s}" data-prefix=""  data-suffix="XP")
 		!= character.xp.to_s + 'XP'
-	.ui-widget-content.padding-10(style="float:left;border-left:none")
+	.level.ui-widget-content.padding-10(style="float:left;border-left:none" data-value="#{character.level.to_s}" data-prefix="Lv"  data-suffix="")
 		!= 'Lv' + character.level.to_s
-	.ui-corner-right.ui-widget-content.padding-10(style="float:left;border-left:none")
+	.cp.ui-corner-right.ui-widget-content.padding-10(style="float:left;border-left:none" data-value="#{character.cp.to_s}" data-prefix=""  data-suffix="CP")
 		!= character.cp.to_s + 'CP'
 	.clear-left(style="padding-top:10px;display:block;min-height:39px;")
 		- hide_minor_actions = "ui-helper-hidden" unless defined? minor_actions and minor_actions != nil
@@ -48,9 +48,9 @@
 		%p
 			!= character.location.description
 		- if character.location.occupants.count > 1
-			%p
+			%p.occupants-message
 				You can see #{(character.location.occupants.count - 1).to_s} other #{character.location.occupants.count == 2 ? 'person' : 'people'} at this location:
-			%ul
+			%ul.occupants-list
 				- character.location.occupants.each do |occupant|
 					- if character.name != occupant.name
 						%li
@@ -76,12 +76,12 @@
 					!= "<div class=\"maptile#{ curtile == 0 ? ' clear-left' : '' }\" style=\"background-color:black\">"
 					!= "</div>"
 				- else
-					!= "<div class=\"maptile#{ curtile == 0 ? ' clear-left' : '' }\" style=\"background-color:#{tile.type.colour}\">#{tile.name == nil ? tile.type.name : tile.name}"
-					!= '<img style="position:absolute;bottom:0px;right:0px" src="/img/otherperson.png"/>' if tile.occupants.count > (character.location == tile ? 1 : 0)
+					!= "<div data-mapid=\"#{tile.object_id.to_s}\" class=\"maptile#{ curtile == 0 ? ' clear-left' : '' }\" style=\"background-color:#{tile.type.colour}\">#{tile.name == nil ? tile.type.name : tile.name}"
+					!= "<img class=\"other-occupants#{ tile.occupants.count > (character.location == tile ? 1 : 0) ? '' : ' ui-helper-hidden' }\" style=\"position:absolute;bottom:0px;right:0px\" src=\"/img/otherperson.png\"/>"
 					- if character.location == tile
 						!= '<img style="position:absolute;bottom:0px;left:0px" src="/img/person.png"/>' if character.location == tile
 					- else
-						!= HTML.Link('/game/move/' + tile.object_id.to_s, 'Move', 'button move_button', '#page_content nohash') if (character.location.x - tile.x).abs < 2 and (character.location.y - tile.y).abs < 2
+						!= HTML.Link('/game/move/' + tile.object_id.to_s, 'Move', 'button move_button', '#page_content nohash', nil, {'data-notyetworde' => {'type' => 'move', 'to' => tile.object_id.to_s}.to_json}) if (character.location.x - tile.x).abs < 2 and (character.location.y - tile.y).abs < 2
 					!= '</div>'
 		#inventory
 			#inventory_accordion

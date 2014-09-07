@@ -9,7 +9,7 @@ class Dungeon < Sinatra::Application
 			link = link + " class=\"#{classes}\"" unless classes == "" or classes === nil
 			link = link + " data-ajax=\"#{ajaxtarget}\"" unless ajaxtarget == "" or ajaxtarget === nil
 			link = link + " style=\"#{style}\"" unless style == "" or style === nil
-			link = link + " " + attrs.map{|k,v| "#{k}=\"#{v}\""}.join(' ')
+			link = link + " " + attrs.map{|k,v| "#{k}='#{v}'"}.join(' ')
 			link = link + ">#{text}</a>"
 			return link
 		end
