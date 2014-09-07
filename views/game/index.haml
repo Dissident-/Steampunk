@@ -39,9 +39,11 @@
 						!= log.timestamp.getutc.strftime("%Y-%m-%d %H:%M:%S") + ' ' + log.message
 		
 		.padding-10
-			%input(type="text" name="speech" value="" style="margin-right:1%;display:inline;width:80%;")
-			%button.button(onclick="deWorde.sendChatMessage($('input[name=speech]').val()); $('input[name=speech]').val(''); return false;")
-				Speak
+			!= HTML.Form('/game/speak', 'form_speak', nil, {'data-wordeform' => '1', 'data-postworde' => "$('#form_speak input[name=message]').val('');"})
+			%input(type="hidden" name="type" value="speech")
+			%input(type="text" name="message" value="" style="margin-right:1%;display:inline;width:80%;")
+			!= HTML.Submit("Speak")	
+			!= HTML.Form
 		%p
 			%b
 				!= character.location.name + ', ' + character.location.type.name + ' (' + character.location.x.to_s + ', ' + character.location.y.to_s + ', ' + character.location.plane.name + ')'

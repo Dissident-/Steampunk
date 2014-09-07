@@ -1,3 +1,21 @@
+$.fn.serializeObject = function()
+{
+    var o = {};
+    var a = this.serializeArray();
+    $.each(a, function() {
+        if (o[this.name] !== undefined) {
+            if (!o[this.name].push) {
+                o[this.name] = [o[this.name]];
+            }
+            o[this.name].push(this.value || '');
+        } else {
+            o[this.name] = this.value || '';
+        }
+    });
+    return o;
+};
+
+
 // A lot of legacy stuff needs cleaning up in here
 
 var CI_INDEX = '';
@@ -143,101 +161,101 @@ if(History.enabled)
 	
 	
 		$(window).bind('hashchange', function()
-	{
-		savePanels();
-		if(temporarilyIgnoreHashChange)
 		{
-			temporarilyIgnoreHashChange = false
-			return;
-		}
-		if(location.hash != '' && location.hash != '#')
-		{
-			if(location.hash.indexOf('->') > -1)
+			savePanels();
+			if(temporarilyIgnoreHashChange)
 			{
-				hashData = location.hash.slice(1).split('->');
-				targetElement = hashData[0];
-				targetURL = hashData[1];
+				temporarilyIgnoreHashChange = false
+				return;
 			}
-			else
+			if(location.hash != '' && location.hash != '#')
 			{
-				targetElement = '#page_content';
-				targetURL = location.hash.slice(1);
-			}
-			
-			if(targetURL.slice(0, 1) != '/' && !baseURL.endsWith('/'))
-			{
-				targetURL = '/' + targetURL;
-			}
-			else if(targetURL.slice(0, 1) == '/' && baseURL.endsWith('/'))
-			{
-				targetURL = targetURL.substring(1);
-			}
-			targetURL = baseURL + targetURL;
-			
-			$.ajax({
-				type:'GET',
-				url: targetURL,
-				data: targetElement == '#page_content' ? {} : { target: targetElement},
-				beforeSend: function(){
-					addMarker(targetElement, targetURL);
-					//$(targetElement).hide('fade');
-					LoadingSpinner(targetElement, true);
-				},
-				success: function(data, status, xhr){
-					//if(checkMarker(targetElement, targetURL))
-					//{
-						$(targetElement).html(data);
-						if($('.title').length > 0)
-						{
-							$('head title').html($('.title').html());
-						}
-						else
-						{
-							$('head title').html(APPNAME);
-						}
-						setAjaxForms();
-						setAjaxLinks();
-						prettify();
-						restorePanels();
-						/*if(window.location.pathname.slice(1) == location.hash.slice(1))
-						{
-							location.hash = '';
-						}*/
-
-					//}
-				},
-				error: function(data, status, xhr){
+				if(location.hash.indexOf('->') > -1)
+				{
+					hashData = location.hash.slice(1).split('->');
+					targetElement = hashData[0];
+					targetURL = hashData[1];
+				}
+				else
+				{
+					targetElement = '#page_content';
+					targetURL = location.hash.slice(1);
+				}
 				
-					if(checkMarker(targetElement, targetURL))
-					{
-						$(targetElement).html(data);
-						setAjaxForms();
-						LoadingSpinner(targetElement, false);
-						/*if(window.location.pathname.slice(1) == location.hash.slice(1))
-						{
-							location.hash = '';
-						}*/
+				if(targetURL.slice(0, 1) != '/' && !baseURL.endsWith('/'))
+				{
+					targetURL = '/' + targetURL;
+				}
+				else if(targetURL.slice(0, 1) == '/' && baseURL.endsWith('/'))
+				{
+					targetURL = targetURL.substring(1);
+				}
+				targetURL = baseURL + targetURL;
+				
+				$.ajax({
+					type:'GET',
+					url: targetURL,
+					data: targetElement == '#page_content' ? {} : { target: targetElement},
+					beforeSend: function(){
+						addMarker(targetElement, targetURL);
+						//$(targetElement).hide('fade');
+						LoadingSpinner(targetElement, true);
+					},
+					success: function(data, status, xhr){
+						//if(checkMarker(targetElement, targetURL))
+						//{
+							$(targetElement).html(data);
+							if($('.title').length > 0)
+							{
+								$('head title').html($('.title').html());
+							}
+							else
+							{
+								$('head title').html(APPNAME);
+							}
+							setAjaxForms();
+							setAjaxLinks();
+							prettify();
+							restorePanels();
+							/*if(window.location.pathname.slice(1) == location.hash.slice(1))
+							{
+								location.hash = '';
+							}*/
 
-					}
+						//}
+					},
+					error: function(data, status, xhr){
 					
-				},
-				complete: function(XHR, status){
-					if(status == 'timeout')
-					{
-						alert('The remote web page timed out!');
-					}
-					//$(targetElement).hide();
-					LoadingSpinner(targetElement, false);
-					//$(targetElement).show(); //$(targetElement).show('fade');
-					if(targetElement == '#page_content') $("html, body").animate({ scrollTop: 0 }, "slow");
-				},
-				timeout: '300000'
-			});
-		}
-	});
-	$(window).trigger('hashchange'); 
-	
-	
+						if(checkMarker(targetElement, targetURL))
+						{
+							$(targetElement).html(data);
+							setAjaxForms();
+							LoadingSpinner(targetElement, false);
+							/*if(window.location.pathname.slice(1) == location.hash.slice(1))
+							{
+								location.hash = '';
+							}*/
+
+						}
+						
+					},
+					complete: function(XHR, status){
+						if(status == 'timeout')
+						{
+							alert('The remote web page timed out!');
+						}
+						//$(targetElement).hide();
+						LoadingSpinner(targetElement, false);
+						//$(targetElement).show(); //$(targetElement).show('fade');
+						if(targetElement == '#page_content') $("html, body").animate({ scrollTop: 0 }, "slow");
+					},
+					timeout: '300000'
+				});
+			}
+		});
+		$(window).trigger('hashchange'); 
+		
+		
 	
 	
 	
@@ -293,23 +311,49 @@ var sidebarHiddenByUser = false;
 
 $('html').on('click', 'a', function(e){
 	savePanels();
-	return ajaxURL(this);
+	if(deWorde.running && $(this).attr('data-worde')) // Use socket if connected and supported, otherwise AJAX
+	{
+		ev = $(this).attr('data-preworde'); // Allow for any extra js required if using socket
+		if(ev) eval(ev);
+		deWorde.socket.send($(this).attr('data-worde'));
+		ev = $(this).attr('data-postworde');
+		if(ev) eval(ev);
+		return false;
+	}
+	return ajaxURL(this); // If link isn't marked for AJAX then this will return true
 });
 
 $('html').on('submit', 'form', function(e){
 	savePanels();
-	if($(this).find('input[name=no_ajax]').length)
+	
+	// Attempt to websocket form if connected and supported
+	if(deWorde.running && $(this).attr('data-wordeform'))
+	{
+		ev = $(this).attr('data-preworde');
+		if(ev) eval(ev);
+		
+		worde = $(this).attr('data-worde')
+		if(worde)
+		{
+			deWorde.socket.send(worde);
+		}
+		else
+		{
+			deWorde.socket.send(JSON.stringify($(this).serializeObject()));
+		}
+		
+		ev = $(this).attr('data-postworde');
+		if(ev) eval(ev);
+		
+		return false;
+	}
+	
+	if(!$(this).attr('id') || $(this).attr('id').length == 0)
 	{
 		return true;
 	}
-	if(!$(this).attr('id') || $(this).attr('id').length == 0)
-	{
-		return false;
-		//$(this).attr('id', 'form_id_' + Math.floor(Math.random() * 1000000));
-	}
 	targetElement = "#" + $(this).attr('id');
-	ajaxForm(targetElement);
-	return false;
+	return ajaxForm(targetElement);
 });
 
 $(document).ready(function(){
@@ -483,26 +527,15 @@ var targetSubmitURL = '';
 
 function ajaxForm(data)
 {
-	// Throttle actions to prevent double clicking
-	if(new Date().getTime() - lastAction < 500 && lastActionData == data)
+	if($(data + ' .return_target').length > 0 && $($(data + ' .return_target').html()).length > 0)
 	{
-		return false;
+		targetElement = $(data + ' .return_target').html();
 	}
 	else
 	{
-		lastAction = new Date().getTime();
-		lastActionData = data;
-	}
-	if($(data + ' .return_target').length > 0 && $($(data + ' .return_target').attr('value')).length > 0)
-	{
-		targetElement = $(data + ' .return_target').attr('value');
-	}
-	else
-	{
-		targetElement = '#page_content';
+		return true;
 	}
 	
-	//$(data + ' .ajax').attr('value', '1');
 	targetSubmitURL = $(data).attr('action');
 	$.ajax({
 		type:'POST',

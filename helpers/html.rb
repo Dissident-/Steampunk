@@ -2,13 +2,13 @@ class Dungeon < Sinatra::Application
 	module HTML
 		module_function
 
-		def Link(url, text, classes = "", rel = "", style = "")
+		def Link(url, text, classes = "", rel = "", style = "", attrs = {})
 			rel = "no_ajax" if rel == false 
 			link = "<a href=\"#{url}\""
-			link = link + " class=\"#{classes}\"" unless classes == ""
-			link = link + " rel=\"#{rel}\"" unless rel == ""
-			link = link + " style=\"#{style}\"" unless style == ""
-			link = link +  " style=\"#{classes}\"" unless classes == ""
+			link = link + " class=\"#{classes}\"" unless classes == "" or classes === nil
+			link = link + " rel=\"#{rel}\"" unless rel == "" or rel === nil
+			link = link + " style=\"#{style}\"" unless style == "" or style === nil
+			link = link + " " + attrs.map{|k,v| "#{k}=\"#{v}\""}.join(' ')
 			link = link + ">#{text}</a>"
 			return link
 		end
@@ -49,11 +49,11 @@ class Dungeon < Sinatra::Application
 			return "<input type=\"submit\" value=\"#{name}\" class=\"#{htmlclass}\"/>"
 		end
 		
-		def Form(url = nil, id = nil, return_target = "#page_content")
-		
+		def Form(url = nil, id = nil, return_target = nil, attrs = {})
+			return_target = "#page_content" if return_target === nil
 			return "</form>" if url == nil
-			return "<form action=\"#{url}\" id=\"#{id}\" method=\"POST\"><input class=\"return_target\" name=\"return_target\" type=\"hidden\" value=\"#{return_target}\"/>" unless return_target == false
-			return "<form action=\"#{url}\" id=\"#{id}\" method=\"POST\"><input class=\"no_ajax\" name=\"no_ajax\" type=\"hidden\" value=\"\"/>"
+			return "<form action=\"#{url}\" id=\"#{id}\" method=\"POST\" #{attrs.map{|k,v| "#{k}=\"#{v}\""}.join(' ')} ><span class=\"return_target ui-helper-hidden\" >#{return_target}</span>" unless return_target === false
+			return "<form action=\"#{url}\" id=\"#{id}\" method=\"POST\" #{attrs.map{|k,v| "#{k}=\"#{v}\""}.join(' ')} >"
 		end
 	end
 end
