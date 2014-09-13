@@ -9,6 +9,7 @@ require 'securerandom'
 require 'eventmachine'
 require 'faye/websocket'
 require 'haml'
+require 'rhino'
 
 Faye::WebSocket.load_adapter('puma')
 
