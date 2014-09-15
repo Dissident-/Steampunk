@@ -40,6 +40,25 @@ class Dungeon < Sinatra::Application
 		end
 	end
 
+	get '/game/activated/:id' do
+		character = session[:character]
+		activated = Dimension::Effect.find params[:id].to_i
+		if activated === nil then
+			render_game(minor_warnings: "Skill not found!")
+		else
+			if character.compiled_effects[:activated].include? activated then
+				result = activated.run character
+				if result == :success then
+					render_game
+				else
+					render_game(minor_warnings: result)
+				end
+			else
+				render_game(minor_warnings: "You don't have that skill!")
+			end
+		end
+	end
+	
 	get '/game/move/:id' do
 		character = session[:character]
 		dest = Dimension::Location.find params[:id].to_i

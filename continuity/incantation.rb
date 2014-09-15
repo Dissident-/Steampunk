@@ -94,6 +94,21 @@ module Dimension
 				end
 			}
 			puts "100%"
+			
+			print 'Loading custom testing stuff...'
+			
+			effect = Dimension::Effect.new 'Explosive Murder'
+			effect.type = :activated
+			effect.code = 'Library::Trigger::ExplosiveMurder'
+			
+			skill = Dimension::Skill.new 'Explosive Murder'
+			skill.add_effect effect
+			
+			Dimension::Character.list.values.each do |char|
+				char.learn skill
+			end
+			
+			puts "100%"
 		end
 	end
 end

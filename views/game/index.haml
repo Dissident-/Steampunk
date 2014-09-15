@@ -57,6 +57,8 @@
 							!= HTML.Link('/character/profile/' + occupant.name, occupant.name)
 		!= HTML.Link('/game/search', 'Search', 'button margin-10', '#page_content nohash')
 		
+		- character.compiled_effects[:activated].each do |activated|
+			!= HTML.Link('/game/activated/' + activated.object_id.to_s, 'Use ' + activated.name, 'button margin-10', '#page_content nohash')
 		
 
 .padding-10(style="position:absolute;width:375px;height:100%;right:10px;margin-top:15px")

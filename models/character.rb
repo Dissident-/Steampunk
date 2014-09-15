@@ -14,7 +14,6 @@ module Dimension
 		
 		attr_accessor :ap
 		
-		
 		attr_accessor :xp
 		attr_accessor :level
 		attr_accessor :cp
@@ -22,6 +21,9 @@ module Dimension
 		attr_reader :inventory
 		attr_reader :inventory_by_category
 		attr_accessor :location
+		
+		attr_reader :skills
+		attr_reader :compiled_effects
 		
 		def attach_socket(ws)
 			@sockets << ws unless @sockets.include? ws
@@ -66,6 +68,9 @@ module Dimension
 			@inventory = ThreadSafe::Array.new
 			@inventory_by_category = ThreadSafe::Cache.new{|hash, key| hash[key] = ThreadSafe::Array.new}
 			
+			@skills = ThreadSafe::Cache.new
+			@compiled_effects = ThreadSafe::Cache.new{|hash, key| hash[key] = ThreadSafe::Array.new}
+			
 			@@list_by_name[@name] = self
 			@@list[self.object_id] = self
 		end
@@ -92,7 +97,19 @@ module Dimension
 			new.id = values[:CharacterID]
 			new.location = Location.find_by_id values[:LocationID]
 			new.location.arrive new unless new.location == nil
+
 			return new
+		end
+		
+		def damage(amount, type = :unsoakable)
+			self.hp = self.hp - amount
+		end
+		
+		def learn(skill)
+			@skills[skill.object_id] = skill
+			skill.effects.each do |effect|
+				compiled_effects[effect.type] << effect
+			end
 		end
 		
 		def add_message(message)
@@ -101,70 +118,81 @@ module Dimension
 		end
 		
 		def say(message)
-			message = Rack::Utils.escape_html(message)
+			if message.tainted? === true then
+				message = Rack::Utils.escape_html(message)
+				message.untaint
+			end
 			if message.start_with?('/me ', '/ME ') then
-				Dimension::Message.send('<a data-ajax="#page_content" href="/character/profile/' + self.name + '">' + self.name + '</a> \'' +  message[4..-1] + '\'', self.location.occupants, self)
+				Dimension::Message.send(self.link + '\'' +  message[4..-1] + '\'', self.location.occupants, self)
 			else
-				Dimension::Message.send('<a data-ajax="#page_content" href="/character/profile/' + self.name + '">' + self.name + '</a> said \'' +  message + '\'', self.location.occupants, self)
+				Dimension::Message.send(self.link + ' said \'' +  message + '\'', self.location.occupants, self)
 			end
 		end
 		
+		def link()
+			return '<a data-ajax="#page_content" href="/character/profile/' + self.name + '">' + self.name + '</a>'
+		end
+		
 		def respawn()
+			@location.depart self unless @location === nil
 			@location = Location.find_by_id 1
 			@location.arrive self
 			@hp = 50
 		end
 		
 		def move(destination)
-			@location.depart self
+			@location.depart self unless @location === nil
 			oldlocation = @location			
 			@location = destination
-			@location.arrive self
+			@location.arrive self unless destination === nil
 			
-			Thread.new do
-				oldoccupance = oldlocation.occupants.count
-				
-				if oldoccupance > 0 then
-					# Inform occupants of departure
-					packet = {'type' => 'occupants', 'list' => oldlocation.occupants.map { |r| Hash['name' => r.name] } }.to_json
-					oldlocation.occupants.each do |char|
-						char.send_socket(packet)
-					end
-				else # inform area of emptiness
-					people = []
-					oldlocation.surrounds.each do |loc|
-						unless loc === nil then
-							people.concat(loc.occupants)
+			unless oldlocation === nil then
+				Thread.new do
+					oldoccupance = oldlocation.occupants.count
+					
+					if oldoccupance > 0 then
+						# Inform occupants of departure
+						packet = {'type' => 'occupants', 'list' => oldlocation.occupants.map { |r| Hash['name' => r.name] } }.to_json
+						oldlocation.occupants.each do |char|
+							char.send_socket(packet)
 						end
-					end
-					packet = {'type' => 'remoteoccupance', 'mapid' => oldlocation.object_id, 'occupied' => 0}.to_json
-					people.each do |char|
-						char.send_socket(packet) unless char == self
+					else # inform area of emptiness
+						people = []
+						oldlocation.surrounds.each do |loc|
+							unless loc === nil then
+								people.concat(loc.occupants)
+							end
+						end
+						packet = {'type' => 'remoteoccupance', 'mapid' => oldlocation.object_id, 'occupied' => 0}.to_json
+						people.each do |char|
+							char.send_socket(packet) unless char == self
+						end
 					end
 				end
 			end
-			Thread.new do		
-				newoccupance = @location.occupants.count
-				if newoccupance > 1 then
-					# Inform occupants of arrival
-					packet = {'type' => 'occupants', 'list' => @location.occupants.map { |r| Hash['name' => r.name] }}.to_json
-					@location.occupants.each do |char|
-						char.send_socket(packet)
-					end
-				else # inform area of arrival
-					people = []
-					@location.surrounds.each do |loc|
-						unless loc === nil then
-							people.concat(loc.occupants)
+			unless @location === nil then
+				Thread.new do		
+					newoccupance = @location.occupants.count
+					if newoccupance > 1 then
+						# Inform occupants of arrival
+						packet = {'type' => 'occupants', 'list' => @location.occupants.map { |r| Hash['name' => r.name] }}.to_json
+						@location.occupants.each do |char|
+							char.send_socket(packet)
 						end
-					end
-					packet = {'type' => 'remoteoccupance', 'mapid' => @location.object_id, 'occupied' => 1}.to_json
-					people.each do |char|
-						char.send_socket(packet) unless char == self
+					else # inform area of arrival
+						people = []
+						@location.surrounds.each do |loc|
+							unless loc === nil then
+								people.concat(loc.occupants)
+							end
+						end
+						packet = {'type' => 'remoteoccupance', 'mapid' => @location.object_id, 'occupied' => 1}.to_json
+						people.each do |char|
+							char.send_socket(packet) unless char == self
+						end
 					end
 				end
 			end
-			
 			
 	
 		end

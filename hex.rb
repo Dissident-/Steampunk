@@ -9,7 +9,7 @@ require 'securerandom'
 require 'eventmachine'
 require 'faye/websocket'
 require 'haml'
-require 'rhino'
+require 'sandbox'
 
 Faye::WebSocket.load_adapter('puma')
 
@@ -39,6 +39,8 @@ class Dungeon < Sinatra::Application
 	require_rel 'controllers'
 	require_rel 'models'
 	require_rel 'helpers'
+	#require_rel 'library/transforms'
+	require_rel 'library/triggers'
 	#require_rel 'sockets'
 	require_rel 'continuity'
 

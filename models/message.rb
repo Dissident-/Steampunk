@@ -40,6 +40,7 @@ module Dimension
 			@id = id
 			@@list[id] = self unless id === nil
 			@listeners = ThreadSafe::Array.new
+			@source = nil
 		end
 		
 		def self.find_by_id(id)

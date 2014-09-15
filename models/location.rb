@@ -35,6 +35,14 @@ module Dimension
 			@occupants = ThreadSafe::Array.new
 		end
 		
+		def broadcast(message, sender = nil)
+			if message.tainted? === true then
+				message = Rack::Utils.escape_html(message)
+				message.untaint
+			end
+			Dimension::Message.send(message, self.occupants, sender)
+		end
+		
 		def surrounds(area = 2)
 			sur = ThreadSafe::Array.new
 			for yy in (y - area)..(y + area)
