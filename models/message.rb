@@ -26,9 +26,14 @@ module Dimension
 			msg = Message.new(message, Time.now)
 			msg.source = sender.id unless sender === nil
 		
-			recipients.each do |recipient|
-				recipient.add_message msg
-				msg.listeners << recipient
+			if recipients.respond_to? :each then
+				recipients.each do |recipient|
+					recipient.add_message msg
+					msg.listeners << recipient
+				end
+			else
+				recipients.add_message msg
+				msg.listeners << recipients
 			end
 			
 			@@unsaved << msg
