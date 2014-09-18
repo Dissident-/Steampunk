@@ -10,6 +10,7 @@ module Dimension
 		attr_accessor :params
 		attr_accessor :name
 		attr_accessor :type
+		attr_reader :code_class
 		
 		@@types = ThreadSafe::Cache.new
 		
@@ -18,6 +19,7 @@ module Dimension
 		end
 		
 		def code=(code)
+			@code_class = code
 			code = code.split('::')
 			@code = Object
 			code.each do |mod|
@@ -57,6 +59,7 @@ module Dimension
 		def self.load(values)
 			new = Dimension::Effect.new values[:EffectName]
 			new.id = values[:EffectID]
+			new.code = values[:EffectClass]
 			new.type = values[:TypeName].to_sym
 			new.params = JSON.parse values[:Information]
 			return new
@@ -69,7 +72,7 @@ module Dimension
 		end
 		
 		def save()
-			return {:EffectID => @id, @EffectName => @name, :EffectTypeID => @@types[@type], :Information => @params.to_json}
+			return {:EffectID => @id, @EffectName => @name, :EffectTypeID => @@types[@type], :Information => @params.to_json, :EffectClass => @code_class}
 		end
 	
 	end

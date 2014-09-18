@@ -21,7 +21,7 @@ module Dimension
 			
 			# Planes
 			
-			Dimension::Plane.list.each do |_,plane|
+			Dimension::Plane.list.each_value do |plane|
 				if plane.id === nil then
 					plane.id = DB[:plane].insert plane.save
 				else
@@ -33,7 +33,7 @@ module Dimension
 			print 'while vile *TILES* smile '
 			
 			
-			Dimension::LocationType.list.each do |_,type|
+			Dimension::LocationType.list.each_value do |type|
 				if type.id === nil then
 					type.id = DB[:tile_type].insert type.save
 				else
@@ -66,7 +66,7 @@ module Dimension
 			
 			print 'such shady *CHARACTERS* '
 			DB.transaction do
-				Dimension::Character.list.each do |_,alt|
+				Dimension::Character.list.each_value do |alt|
 					if alt.id === nil then
 						alt.id = DB[:character].insert alt.save
 					else
@@ -77,7 +77,7 @@ module Dimension
 			
 			print '*CATEGORICALLY* catastrophic '
 			DB.transaction do
-				Dimension::ItemCategory.list.each do |_,cat|
+				Dimension::ItemCategory.list.each_value do |cat|
 					if cat.id === nil then
 						cat.id = DB[:item_category].insert cat.save
 					else
@@ -88,7 +88,7 @@ module Dimension
 			
 			print 'typically *TYPED* '
 			DB.transaction do
-				Dimension::ItemType.list.each do |_,typ|
+				Dimension::ItemType.list.each_value do |typ|
 					if typ.id === nil then
 						typ.id = DB[:item_type].insert typ.save
 					else
@@ -110,7 +110,7 @@ module Dimension
 			
 			print 'affecting *EFFECTS* '
 			DB.transaction do
-				Dimension::Effect.list.each do |_,effect|
+				Dimension::Effect.list.each_value do |effect|
 					if effect.id === nil then
 						effect.id = DB[:effect].insert effect.save
 					else
