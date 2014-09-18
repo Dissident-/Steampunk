@@ -13,7 +13,7 @@ module Dimension
 		attr_reader :hp
 		
 		def hp=(hp)
-			if @hp !== nil && @hp > 0 && hp <= 0 then
+			if @hp != nil && @hp > 0 && hp <= 0 then
 				@hp = hp
 				loc = self.location
 				self.despawn
