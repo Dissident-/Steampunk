@@ -17,7 +17,7 @@ module Dimension
 				@hp = hp
 				loc = self.location
 				self.despawn
-				loc.occupants.broadcast(self.link + ' has died!', self)
+				loc.broadcast(self.link + ' has died!', self)
 				Dimension::Message.send('You have died!', self, self)
 			else
 				@hp = hp
@@ -115,6 +115,7 @@ module Dimension
 		
 		def damage(amount, type = :unsoakable)
 			self.hp = self.hp - amount
+			return amount
 		end
 		
 		def learn(skill)
