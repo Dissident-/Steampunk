@@ -6,6 +6,10 @@ module Dimension
 		@@list_by_id = ThreadSafe::Cache.new # by db id
 		
 		attr_accessor :name
+		attr_accessor :cost
+		
+		attr_accessor :parents
+		attr_accessor :children
 		
 		attr_reader :effects
 		
@@ -23,6 +27,8 @@ module Dimension
 			@@list_by_name[@name] = self
 			@@list[self.object_id] = self
 			@effects = ThreadSafe::Array.new
+			@parents = ThreadSafe::Array.new
+			@children = ThreadSafe::Array.new
 		end
 		
 		def self.find(objid)
@@ -40,11 +46,16 @@ module Dimension
 		def self.load(values)
 			new = Dimension::Skill.new values[:SkillName]
 			new.id = values[:SkillID]
+			new.cost = values[:SkillBaseCost]
 			return new
 		end
 		
 		def add_effect(effect)
 			@effects << effect
+		end
+		
+		def save()
+			return {:SkillID => @id, @SkillName => @name, :SkillBaseCost => @cost}
 		end
 	end
 end

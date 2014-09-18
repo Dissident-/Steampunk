@@ -5,20 +5,23 @@ module Dimension
 	class Sourcery
 		def self.persistence()
 		
-			# Due to an issuewith rufus on Windows, it eems to trigger a save tick straightaway during startup
+			# Due to an issue with rufus on Windows, it seems to trigger a save tick straightaway during startup
 			if ENV['OS'] == 'Windows_NT' then
 				unless defined? @@skipped then
 					@@skipped = true
 					return
 				end
 			end
-		
-			puts '*** *** *** SEEK THE DUNGEON DIMENSIONS *** *** *** SAVES ON A PLANE'
 			
+			#TODO: Handle deletions
+		
+			puts '>>> >>> >>> OPEN THE DUNGEON DIMENSIONS >>> >>> >>>'
+			
+			print 'saves on a *PLANE* '
 			
 			# Planes
 			
-			Dimension::Plane.list.values.each do |plane|
+			Dimension::Plane.list.each do |_,plane|
 				if plane.id === nil then
 					plane.id = DB[:plane].insert plane.save
 				else
@@ -27,10 +30,10 @@ module Dimension
 			end
 			
 	
-			puts '+++ +++ +++ OPEN THE DUNGEON DIMENSIONS +++ +++ +++ WHILE VILE TILES SMILE'
+			print 'while vile *TILES* smile '
 			
 			
-			Dimension::LocationType.list.values.each do |type|
+			Dimension::LocationType.list.each do |_,type|
 				if type.id === nil then
 					type.id = DB[:tile_type].insert type.save
 				else
@@ -38,7 +41,7 @@ module Dimension
 				end
 			end			
 			
-			puts '<<< <<< <<< OPEN THE DUNGEON DIMENSIONS >>> >>> >>> LOCATION DISLOCATION'
+			print '*LOCATION* dislocation '
 			
 			Dimension::Location.list.each do |location|
 				if location.id === nil then
@@ -48,69 +51,97 @@ module Dimension
 				end
 			end			
 			
-			puts '~~~ ~~~ ~~~ OPEN THE DUNGEON DIMENSIONS ~~~ ~~~ ~~~ APOCALYPTICAL ACCOUNTANCY'
+			#print 'APOCALYPTICAL ACCOUNTANCY '
 			
 			#Accounts are now saved to the database the moment they are created
+			#DB.transaction do
+			#	Dimension::Account.list.values.each do |account|
+			#		if account.id === nil then
+			#			account.id = DB[:account].insert account.save
+			#		else
+			#			DB[:account].where(:AccountID => account.id).update(account.save)
+			#		end
+			#	end	
+			#end			
 			
-			#Dimension::Account.list.values.each do |account|
-			#	if account.id === nil then
-			#		account.id = DB[:account].insert account.save
-			#	else
-			#		DB[:account].where(:AccountID => account.id).update(account.save)
-			#	end
-			#end		
+			print 'such shady *CHARACTERS* '
+			DB.transaction do
+				Dimension::Character.list.each do |_,alt|
+					if alt.id === nil then
+						alt.id = DB[:character].insert alt.save
+					else
+						DB[:character].where(:CharacterID => alt.id).update(alt.save)
+					end
+				end	
+			end
 			
-			puts '--- --- --- OPEN THE DUNGEON DIMENSIONS --- --- --- SUCH SHADY CHARACTERS'
+			print '*CATEGORICALLY* catastrophic '
+			DB.transaction do
+				Dimension::ItemCategory.list.each do |_,cat|
+					if cat.id === nil then
+						cat.id = DB[:item_category].insert cat.save
+					else
+						DB[:item_category].where(:ItemCategoryID => cat.id).update(cat.save)
+					end
+				end	
+			end
 			
-			Dimension::Character.list.values.each do |alt|
-				if alt.id === nil then
-					alt.id = DB[:character].insert alt.save
-				else
-					DB[:character].where(:CharacterID => alt.id).update(alt.save)
-				end
-			end	
+			print 'typically *TYPED* '
+			DB.transaction do
+				Dimension::ItemType.list.each do |_,typ|
+					if typ.id === nil then
+						typ.id = DB[:item_type].insert typ.save
+					else
+						DB[:item_type].where(:ItemTypeID => typ.id).update(typ.save)
+					end
+				end	
+			end
 			
-			puts '*** *** *** OPEN THE DUNGEON DIMENSIONS *** *** *** CATEGORICALLY CATASTROPHIC'
+			print 'ITEMising ITEMisation '
+			DB.transaction do
+				Dimension::Item.list.each do |item|
+					if item.id === nil then
+						item.id = DB[:item_instance].insert item.save
+					else
+						DB[:item_instance].where(:ItemInstanceID => item.id).update(item.save)
+					end
+				end	
+			end
 			
-			Dimension::ItemCategory.list.values.each do |cat|
-				if cat.id === nil then
-					cat.id = DB[:item_category].insert cat.save
-				else
-					DB[:item_category].where(:ItemCategoryID => cat.id).update(cat.save)
-				end
-			end	
+			print 'affecting *EFFECTS* '
+			DB.transaction do
+				Dimension::Effect.list.each do |_,effect|
+					if effect.id === nil then
+						effect.id = DB[:effect].insert effect.save
+					else
+						DB[:effect].where(:EffectID => effect.id).update(effect.save)
+					end
+				end	
+			end
 			
-			puts '/// /// /// OPEN THE DUNGEON DIMENSIONS \\\\\\ \\\\\\ \\\\\\ TYPICALLY TYPED'
+			print 'learning *SKILLS* '
+			DB.transaction do
+				Dimension::Skill.list.each do |_,skill|
+					if skill.id === nil then
+						skill.id = DB[:skill].insert skill.save
+					else
+						DB[:skill].where(:SkillID => skill.id).update(skill.save)
+					end
+				end	
+			end
 			
-			Dimension::ItemType.list.values.each do |typ|
-				if typ.id === nil then
-					typ.id = DB[:item_type].insert typ.save
-				else
-					DB[:item_type].where(:ItemTypeID => typ.id).update(typ.save)
-				end
-			end	
-			
-			puts '^^^ ^^^ ^^^ OPEN THE DUNGEON DIMENSIONS ^^^ ^^^ ^^^ ITEMISING ITEMISATION'
-			
-			Dimension::Item.list.each do |item|
-				if item.id === nil then
-					item.id = DB[:item_instance].insert item.save
-				else
-					DB[:item_instance].where(:ItemInstanceID => item.id).update(item.save)
-				end
-			end	
-
-			puts 'O_o O_o O_o OPEN THE DUNGEON DIMENSIONS o_O o_O o_O SPREADING RUMOURS'
-			
-			Dimension::Message.unsaved.dup.each do |msg|
+			print '*SPREADING RUMOURS!* '
+			DB.transaction do
+				Dimension::Message.unsaved.dup.each do |msg|
 					msg.id = DB[:activity_log].insert msg.save
 					msg.listeners.each do |rec|
 						@ins = {ActivityLogID: msg.id, CharacterID: rec.id}
-						DB[:activity_log_reader].insert@ins
+						DB[:activity_log_reader].insert @ins
 					end
-			end				
-			
-			puts '### ### ### SHUT THE DUNGEON DIMENSIONS ### ### ### OUT OF CHEESE ERROR'
+				end				
+			end
+			puts 'DONE!'
+			puts '<<< <<< <<< SHUT THE DUNGEON DIMENSIONS <<< <<< <<< OUT OF CHEESE ERROR'
 		end
 		
 		def self.revitalise()

@@ -1,3 +1,5 @@
+require 'json'
+
 module Dimension
 	class Effect
 	
@@ -5,10 +7,15 @@ module Dimension
 		@@list_by_name = ThreadSafe::Cache.new # by name
 		@@list_by_id = ThreadSafe::Cache.new # by db id
 		
-		@params = []
-		
+		attr_accessor :params
 		attr_accessor :name
 		attr_accessor :type
+		
+		@@types = ThreadSafe::Cache.new
+		
+		def self.add_type(type, id)
+			@@types[type.to_sym] = id
+		end
 		
 		def code=(code)
 			code = code.split('::')
@@ -29,9 +36,10 @@ module Dimension
 		
 		def initialize(name)
 			@name = name
+			@params = []
+			@code = nil
 			@@list_by_name[@name] = self
 			@@list[self.object_id] = self
-			@code = nil
 		end
 		
 		def self.find(objid)
@@ -47,15 +55,21 @@ module Dimension
 		end
 		
 		def self.load(values)
-			new = Dimension::Skill.new values[:EffectName]
+			new = Dimension::Effect.new values[:EffectName]
 			new.id = values[:EffectID]
+			new.type = values[:TypeName].to_sym
+			new.params = JSON.parse values[:Information]
 			return new
 		end
 		
 		def run(typeparams = [])
-			return if @code === nil
-			return unless @code.respond_to?(@type)
+			return nil if @code === nil
+			return nil unless @code.respond_to?(@type)
 			return @code.send(@type, *typeparams, *@params)
+		end
+		
+		def save()
+			return {:EffectID => @id, @EffectName => @name, :EffectTypeID => @@types[@type], :Information => @params.to_json}
 		end
 	
 	end

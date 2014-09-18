@@ -94,21 +94,37 @@ module Dimension
 				end
 			}
 			puts "100%"
-			
-			print 'Loading custom testing stuff...'
-			
-			effect = Dimension::Effect.new 'Explosive Murder'
-			effect.type = :activated
-			effect.code = 'Library::Trigger::ExplosiveMurder'
-			
-			skill = Dimension::Skill.new 'Explosive Murder'
-			skill.add_effect effect
-			
-			Dimension::Character.list.values.each do |char|
-				char.learn skill
-			end
-			
+			print 'Loading effects...'
+			Wizzardry.show_wait_spinner{
+				DB.fetch("SELECT * FROM `effect_type`") do |row|
+					Dimension::Effect.add_type(row[:TypeName], row[:EffectTypeID])
+				end
+				DB.fetch("SELECT * FROM `effect` INNER JOIN `effect_type` ON `effect`.`EffectTypeID` = `effect_type`.`EffectTypeID`") do |row|
+					Dimension::Effect.load row
+				end
+			}
 			puts "100%"
+			print 'Loading skills...'
+			Wizzardry.show_wait_spinner{
+				DB.fetch("SELECT * FROM `skill`") do |row|
+					Dimension::Skill.load row
+				end
+			}
+			puts "100%"	
+			print 'Linking skills and effects...'
+			Wizzardry.show_wait_spinner{
+				DB.fetch("SELECT * FROM `skill_effect`") do |row|
+					Dimension::Skill.find_by_id(row[:SkillID]).add_effect Dimension::Effect.find_by_id(row[:EffectID])
+				end
+			}
+			puts "100%"		
+			print 'Characters learning skills...'
+			Wizzardry.show_wait_spinner{
+				DB.fetch("SELECT * FROM `skill_instance`") do |row|
+					Dimension::Character.find_by_id(row[:CharacterID]).learn Dimension::Skill.find_by_id(row[:SkillID])
+				end
+			}
+			puts "100%"			
 		end
 	end
 end

@@ -10,7 +10,19 @@ module Dimension
 		attr_reader :owner
 		
 		attr_accessor :name
-		attr_accessor :hp
+		attr_reader :hp
+		
+		def hp=(hp)
+			if @hp !== nil && @hp > 0 && hp <= 0 then
+				@hp = hp
+				loc = self.location
+				self.despawn
+				loc.occupants.broadcast(self.link + ' has died!', self)
+				Dimension::Message.send('You have died!', self, self)
+			else
+				@hp = hp
+			end
+		end
 		
 		attr_accessor :ap
 		
@@ -108,8 +120,18 @@ module Dimension
 		def learn(skill)
 			@skills[skill.object_id] = skill
 			skill.effects.each do |effect|
-				compiled_effects[effect.type] << effect
+				@compiled_effects[effect.type] << effect
 			end
+		end
+		
+		def recompile_effects()
+			compiled_effects = ThreadSafe::Cache.new{|hash, key| hash[key] = ThreadSafe::Array.new}
+			@skills.values.each do |skill|
+				skill.effects.each do |effect|
+					compiled_effects[effect.type] << effect
+				end
+			end
+			@compiled_effects = compiled_effects
 		end
 		
 		def add_message(message)
@@ -138,6 +160,11 @@ module Dimension
 			@location = Location.find_by_id 1
 			@location.arrive self
 			@hp = 50
+		end
+		
+		def despawn()
+			@location.depart self unless @location === nil
+			@location = nil
 		end
 		
 		def move(destination)
