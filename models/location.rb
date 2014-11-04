@@ -43,7 +43,24 @@ module Dimension
 			Dimension::Message.send(message, self.occupants, sender)
 		end
 		
-		def surrounds(area = 2)
+		def surrounds(area = nil)
+			if area === nil then
+				area = 2 # Sight range when outside
+				unless z == 0 then
+					# inside and using default sight surrounds, return blank area
+					sur = ThreadSafe::Array.new
+					for yy in (y - area)..(y + area)
+						for xx in (x - area)..(x + area)
+							if xx == x and yy == y then
+								sur << self
+							else
+								sur << nil
+							end
+						end
+					end
+					return sur
+				end
+			end
 			sur = ThreadSafe::Array.new
 			for yy in (y - area)..(y + area)
 				for xx in (x - area)..(x + area)
@@ -51,6 +68,14 @@ module Dimension
 				end
 			end
 			return sur
+		end
+		
+		def above(amount = 1)
+			@plane.find_location(@x, @y, @z + amount)
+		end
+		
+		def below(amount = 1)
+			@plane.find_location(@x, @y, @z - amount)
 		end
 		
 		def arrive(char)
