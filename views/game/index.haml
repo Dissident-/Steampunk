@@ -58,6 +58,12 @@
 		- else
 			%p.occupants-message
 			%ul.occupants-list
+		
+		- above = character.location.above
+		!= HTML.Link('/game/move/' + above.object_id.to_s, above.z == 1 ? 'Step Inside' : 'Travel Up', 'button margin-10', '#page_content nohash', nil, {'data-notyetworde' => {'type' => 'move', 'to' => above.object_id.to_s}.to_json}) unless above === nil
+		- below = character.location.below
+		!= HTML.Link('/game/move/' + below.object_id.to_s, below.z == 0 ? 'Step Outside' : 'Travel Down', 'button margin-10', '#page_content nohash', nil, {'data-notyetworde' => {'type' => 'move', 'to' => below.object_id.to_s}.to_json}) unless below === nil
+		
 		!= HTML.Link('/game/search', 'Search', 'button margin-10', '#page_content nohash')
 		
 		- character.compiled_effects[:activated].each do |activated|
@@ -85,10 +91,6 @@
 					!= "<img class=\"other-occupants#{ tile.occupants.count > (character.location == tile ? 1 : 0) ? '' : ' ui-helper-hidden' }\" style=\"position:absolute;bottom:0px;right:0px\" src=\"/img/otherperson.png\"/>"
 					- if character.location == tile
 						!= '<img style="position:absolute;bottom:0px;left:0px" src="/img/person.png"/>' if character.location == tile
-						- above = tile.above
-						!= HTML.Link('/game/move/' + above.object_id.to_s, tile.z == 0 ? 'Inside' : 'Up', 'button move_button', '#page_content nohash', nil, {'data-notyetworde' => {'type' => 'move', 'to' => above.object_id.to_s}.to_json}) unless above === nil
-						- below = tile.below
-						!= HTML.Link('/game/move/' + below.object_id.to_s, tile.z == 1 ? 'Outside' : 'Down', 'button move_button', '#page_content nohash', nil, {'data-notyetworde' => {'type' => 'move', 'to' => below.object_id.to_s}.to_json}) unless below === nil
 					- else
 						!= HTML.Link('/game/move/' + tile.object_id.to_s, 'Move', 'button move_button', '#page_content nohash', nil, {'data-notyetworde' => {'type' => 'move', 'to' => tile.object_id.to_s}.to_json}) if (character.location.x - tile.x).abs < 2 and (character.location.y - tile.y).abs < 2
 					!= '</div>'
