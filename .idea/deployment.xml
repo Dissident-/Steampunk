@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PublishConfigData" serverName="ruby.windrunner.mx" uploadOnCheckin="9b64bbb0-db61-42cf-a0dc-5a1a3473c6d4">
+    <serverData>
+      <paths name="ruby.windrunner.mx">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/Dungeon" local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+    </serverData>
+    <option name="myUploadOnCheckinName" value="ruby.windrunner.mx" />
+  </component>
+</project>
+
