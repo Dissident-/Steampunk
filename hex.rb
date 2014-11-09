@@ -9,7 +9,6 @@ require 'securerandom'
 require 'eventmachine'
 require 'faye/websocket'
 require 'haml'
-require 'sandbox'
 
 Faye::WebSocket.load_adapter('puma')
 
@@ -17,14 +16,11 @@ class Dungeon < Sinatra::Application
 	use Rack::Session::Pool
 
 
-	if ENV['OS'] == 'Windows_NT' then
-		configure { set :views, settings.root + '/views'
-		set :threaded, true }
-	else
-		configure { set :server, :puma
-		set :views, settings.root + '/views'
-		set :threaded, true		}
-	end
+
+  configure { set :server, :puma
+  set :views, settings.root + '/views'
+  set :threaded, true		}
+
 
 	helpers do
 	  def esc(text)
@@ -61,7 +57,7 @@ end
 
    server  = 'puma'
    host    = '0.0.0.0'
-   port    = '4567'
+   port    = ENV['OS'] == 'Windows_NT' ? '4020' : '4567' # Use same port for both http and websockets on Windows
    web_app = Dungeon.new
    
  	

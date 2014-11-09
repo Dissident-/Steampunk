@@ -34,13 +34,14 @@ h1,h2,h3,h4,h5
 }
 .maptile
 {
-	width:19.2%;
+	width:20%;
 	height:75px;
 	max-width:75px;
 	border:1px solid black;
 	float:left;
 	font-size:70%;
 	position:relative;
+	box-sizing: border-box;
 }
 p
 {
@@ -240,4 +241,33 @@ a:hover
 .anim-unfade
 {
 	animation: unfade 0.4s ease-out;
+}
+
+
+
+/* absolution overrides */
+.ui-widget-header {
+    background: -moz-linear-gradient(0% 100% 75deg, #468, #ADE) repeat scroll 0% 0% transparent;
+    border: 0px solid #000;
+    color: #DDEEFF;
+}
+.ui-button, input[type="button"], input[type="reset"], input[type="submit"], div.button, button {
+    text-decoration: none !important;
+    text-align: center;
+    font: inherit;
+    border-width: 1px;
+    border-style: solid;
+    cursor: pointer;
+    overflow: visible;
+    color: #243314;
+    border-color: #ABABAB;
+    background: -moz-linear-gradient(0% 100% 90deg, #DDD, #EEE) repeat scroll 0% 0% transparent;
+    display: inline-block;
+    margin-right: 0.1em;
+    border-radius: 2px !important;
+}
+#quicklinks
+{
+	padding: 2px;
+	background: -moz-linear-gradient(0% 100% 89deg, rgb(136, 187, 204), rgb(170, 221, 238)) repeat scroll 0% 0% transparent;
 }
